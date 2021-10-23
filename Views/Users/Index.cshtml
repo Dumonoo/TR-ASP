@@ -1,0 +1,52 @@
+@model TimeReportingSystem.Models.Users
+
+@{
+    ViewData["Title"] = "Użytkownicy";
+
+}
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a asp-action="SignUp">Zarejestuj nowego użytkownika</a>
+</p>
+<table class="table">
+    <thead>
+        <th>
+            Imię
+        </th>
+        <th>
+            Nazwisko
+        </th>
+        <th>
+            Data Urodzenia
+        </th>
+        <th>
+            Nazwa użytkownika
+        </th>
+        <th></th>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model.users)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.surname)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.birthDay)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.userName)
+                </td>
+                <td>
+                    <a asp-action="SignIn" asp-route-userName="@item.userName">Log In</a>
+                </td>
+            </tr>
+        }
+
+    </tbody>
+</table>

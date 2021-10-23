@@ -1,0 +1,16 @@
+{
+    "users": [
+        {
+            "userName": "dnowak2",
+            "name": "Dominik",
+            "surname": "Nowak",
+            "brithDay": "1999-02-04"
+        },
+        {
+            "userName": "jkowalski",
+            "name": "Jan",
+            "surname": "Kowalski",
+            "brithDay": "1986-03-23"
+        }
+    ]
+}
