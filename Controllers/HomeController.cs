@@ -7,10 +7,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using TimeReportingSystem.Models;
 
+using Microsoft.AspNetCore.Http;
+
 namespace TimeReportingSystem.Controllers
 {
     public class HomeController : Controller
     {
+        public const string SessionUser = "_User";
+        const string SessionAge = "_Age";
+
         private readonly ILogger<HomeController> _logger;
 
         public HomeController(ILogger<HomeController> logger)
@@ -20,11 +25,14 @@ namespace TimeReportingSystem.Controllers
 
         public IActionResult Index()
         {
+            //HttpContext.Session.SetString(SessionUser, "dnowak2");
             return View();
         }
 
         public IActionResult Privacy()
         {
+            ViewData["User"] = HttpContext.Session.GetString(SessionUser);
+            Console.WriteLine(HttpContext.Session.GetString(SessionUser));
             return View();
         }
 

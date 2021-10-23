@@ -23,6 +23,20 @@ namespace TimeReportingSystem
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // new
+            // services.AddDistributedMemoryCache(); 
+            // services.AddSession(options =>
+            // {
+            //     options.IdleTimeout = TimeSpan.FromSeconds(10);
+            //     options.Cookie.HttpOnly = true;
+            //     options.Cookie.IsEssential = true;
+            // });
+            services.AddSession(options =>
+            {
+                options.Cookie.Name = ".AdventureWorks.Session";
+                options.IdleTimeout = TimeSpan.FromMinutes(10);
+                options.Cookie.IsEssential = true;
+            });
             services.AddControllersWithViews();
         }
 
@@ -43,6 +57,8 @@ namespace TimeReportingSystem
             app.UseStaticFiles();
 
             app.UseRouting();
+            // new 
+            app.UseSession(); 
 
             app.UseAuthorization();
 
