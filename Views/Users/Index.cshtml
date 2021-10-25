@@ -1,18 +1,13 @@
 @model TimeReportingSystem.Models.Users
-
 @{
     ViewData["Title"] = "Użytkownicy";
-
 }
 <h1>@ViewData["Title"]</h1>
 
 <p>
     <a asp-action="SignUp">Zarejestuj nowego użytkownika</a>
 </p>
-<p>
-        
-</p>
-<table class="table">
+<table class="table table-bordered table-striped table-sm">
     <thead>
         <th>
             Imię
@@ -46,8 +41,9 @@
                     @Html.DisplayFor(modelItem => item.userName)
                 </td>
                 <td>
-                    <a asp-action="SignIn" asp-route-userName="@item.userName">Log In</a>
+                    <a class="btn btn-primary" asp-action="SignIn" asp-route-userName="@item.userName">Zaloguj się</a>
                 </td>
+
             </tr>
         }
 

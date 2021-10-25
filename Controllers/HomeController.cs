@@ -13,7 +13,7 @@ namespace TimeReportingSystem.Controllers
 {
     public class HomeController : Controller
     {
-        public const string SessionUser = "_User";
+        //public const string SessionUser = "_User";
         const string SessionAge = "_Age";
 
         private readonly ILogger<HomeController> _logger;
@@ -25,21 +25,21 @@ namespace TimeReportingSystem.Controllers
 
         public IActionResult Index()
         {
+            ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
             //HttpContext.Session.SetString(SessionUser, "dnowak2");
             return View();
         }
 
-        public IActionResult Privacy()
+        public IActionResult Help()
         {
-            ViewData["User"] = HttpContext.Session.GetString(SessionUser);
-            Console.WriteLine(HttpContext.Session.GetString(SessionUser));
+            ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
             return View();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View(new ErrorViewModel { RequestId = System.Diagnostics.Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

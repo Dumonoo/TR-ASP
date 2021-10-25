@@ -4,27 +4,10 @@
     ViewData["Title"] = "Zarejestruj się";
 
 }
-
 <h1>@ViewData["Title"]</h1>
-<h1>@DateTime.Now.ToString("yyyy-MM-ddTHH:mmzzz")</h1>
 
-@* <form>
-  <div class="mb-3">
-    <label for="exampleInputEmail1" class="form-label">Email address</label>
-    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-    <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
-  </div>
-  <div class="mb-3">
-    <label for="exampleInputPassword1" class="form-label">Password</label>
-    <input type="password" class="form-control" id="exampleInputPassword1">
-  </div>
-  <div class="mb-3 form-check">
-    <input type="checkbox" class="form-check-input" id="exampleCheck1">
-    <label class="form-check-label" for="exampleCheck1">Check me out</label>
-  </div>
-  <button type="submit" class="btn btn-primary">Submit</button>
-</form> *@
-<form asp-action="Resister">
+<form asp-action="SignUp">
+    <div asp-validation-summary="All"></div>
     <div class="form-horizontal">
         <div class="form-group">
             <label asp-for="name">Imię</label><br>
@@ -46,29 +29,8 @@
             <input type="submit" value="Register" />
         </div>
     </div>
-    @* <div>
-        <div>
-            <label asp-for="name">Imię</label><br>
-            <input asp-for="name">
-        </div>
-        <div>
-            <label asp-for="surname">Nazwisko</label><br>
-            <input asp-for="surname">
-        </div>
-        <div>
-            <label asp-for="birthDay">Data urodzenia</label><br>
-            <input type="date" asp-for="birthDay">
-        </div>
-        <div>
-            <label asp-for="userName">Nazwa użytkownika</label><br>
-            <input asp-for="userName">
-        </div>
-        <div>
-            <br>
-            <input type="submit" value="Register" />
-        </div>
-    </div> *@
-
-
 </form>
-<p>@{DateTime.Now.ToString("yyyy-MM-ddTHH:mmzzz");}</p>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

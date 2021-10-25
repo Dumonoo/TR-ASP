@@ -1,8 +1,16 @@
 @{
     ViewData["Title"] = "Privacy Policy";
-
 }
 <h1>@ViewData["Title"]</h1>
 
 <p>Use this page to detail your site's privacy policy.</p>
-<p>@ViewData["User"] - USER</p>
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+  <strong></strong> 
+</div>
+
+<script>
+  $(".alert").alert();
+</script>
