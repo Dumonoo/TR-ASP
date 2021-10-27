@@ -69,10 +69,9 @@
                     <td>
                         <div class="btn-group" role="group" aria-label="Basic example">
                             <a class="btn btn-primary" asp-action="Manage" asp-controller="Projects" asp-route-projectCode="@item.code">Zarządzaj</a>
-                            <button type="button" class="btn btn-primary">Zarządzaj</button>
-                            <button type="button" class="btn btn-success">Edytuj</button>
-                            <button type="button" class="btn btn-warning">Nowa pod aktywność</button>
-                            <button type="button" class="btn btn-dark">Zakończ</button>
+                            <a class="btn btn-success" asp-action="Manage" asp-controller="Projects" asp-route-projectCode="@item.code">Edytuj</a>
+                            <a class="btn btn-warning" asp-action="NewSubactivity" asp-controller="Projects" asp-route-projectCode="@item.code">Nowa pod aktywność</a>
+                            <a class="btn btn-dark" asp-action="Manage" asp-controller="Projects" asp-route-projectCode="@item.code">Zamknij projekt</a>
                         </div>
                     </td>
                 </tr>

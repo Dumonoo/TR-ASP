@@ -1,0 +1,23 @@
+@model TimeReportingSystem.Models.Subactivity
+
+@{
+    ViewData["Title"] = "Nowy pod aktywność";
+
+}
+<h1>@ViewData["Title"]</h1>
+
+<div class="col col-4 justify-content-lg-start">
+    <form asp-action="NewSubactivity">
+        <div class="form-horizontal">
+            <div asp-validation-summary="All"></div>
+            <div class="form-group">
+                <label asp-for="code">Nazwa pod aktywnosci</label>
+                <input asp-for="code" class="form-control">
+                <input id="projectCode" name="projectCode" type="hidden" value="@ViewData["ProjectCode"]">
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Dodaj nową" class="btn btn-primary"/>
+            </div>
+        </div>
+    </form>
+</div>
