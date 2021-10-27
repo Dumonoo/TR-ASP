@@ -7,11 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using TimeReportingSystem.Models;
 using System.Text.Json;
-using System;
-using System.Collections.Generic;
-using System.Text.Json;
+// using System;
+// using System.Collections.Generic;
+// using System.Text.Json;
 using Microsoft.AspNetCore.Http;
-using System.Linq;
+// using System.Linq;
 
 
 namespace TimeReportingSystem.Controllers
@@ -19,10 +19,7 @@ namespace TimeReportingSystem.Controllers
     public class UsersController : Controller
     {
         public const string SessionUser = "_User";
-        // private readonly TimeReportingSystemContext _context;
-        // public async Task<IActionResult> Index(){
-        //     return View(await );
-        // }
+        
         public IActionResult Index()
         {
             
@@ -39,6 +36,10 @@ namespace TimeReportingSystem.Controllers
             }
         }
         public IActionResult SignUp()
+        {
+            return View();
+        }
+        public IActionResult Test()
         {
             return View();
         }

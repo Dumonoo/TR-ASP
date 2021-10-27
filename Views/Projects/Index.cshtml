@@ -1,0 +1,57 @@
+@model TimeReportingSystem.Models.Activities
+@{
+    ViewData["Title"] = "Otwarte Projekty";
+}
+<h1>@ViewData["Title"]</h1>
+
+<table class="table table-bordered table-striped table-sm">
+    <thead>
+        <th>
+            Nazwa Projektu
+        </th>
+        <th>
+            Kod projektu
+        </th>
+        <th>
+            Nazwisko managera
+        </th>
+        <th>
+            Budżet
+        </th>
+        <th>
+            Pod aktywności
+        </th>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model.activities)
+        {
+            @if(item.active){
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.code)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.manager)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.budget)
+                    </td>
+                    <td>
+                        <ul>
+                            @foreach (var i in item.subactivities)
+                            {
+                                <li>@i.code</li>
+                            }
+                        </ul>
+                    </td>
+                </tr>
+            }
+            
+        }
+
+    </tbody>
+</table>

@@ -1,0 +1,45 @@
+@model TimeReportingSystem.Models.Activity
+
+@{
+    ViewData["Title"] = "Nowy projekt";
+
+}
+<h1>@ViewData["Title"]</h1>
+
+<div class="col col-4 justify-content-lg-start">
+    <form asp-action="CreateProject" id="form">
+        <div class="form-horizontal">
+            <div asp-validation-summary="All"></div>
+            <div class="form-group">
+                <label asp-for="name">Nazwa projektu</label>
+                <input asp-for="name" class="form-control">
+            </div>
+            <div class="form-group">
+                <label asp-for="code">Kod projektu</label>
+                <input asp-for="code" class="form-control">
+                <input type="hidden" asp-for="manager" value="@ViewData["User"]" class="form-control">
+            </div>
+            <div class="form-group">
+                <label asp-for="budget">Budżet (w godzinach)</label><br>
+                <input type="number" asp-for="budget" class="form-control" id="changeToMinutes">
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Dodaj nowy" class="btn btn-primary"/>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @* <script>
+        $("#form").on("submit", function (e) {
+            e.preventDefault();
+            var self = $(this);
+            var minutes = parseFloat($("#changeToMinutes").val()) * 60;
+            $("#changeToMinutes").val(minutes.toString());
+            $("#form").off("submit");
+            self.submit();
+        });
+    </script> *@
+}

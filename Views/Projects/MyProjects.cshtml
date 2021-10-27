@@ -1,0 +1,84 @@
+@model TimeReportingSystem.Models.Activities
+@{
+    ViewData["Title"] = "Moje Projekty";
+}
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a asp-action="CreateProject">Stwórz nowy projekt</a>
+</p>
+<table class="table table-bordered table-striped table-sm">
+    <thead>
+        <th>
+            Nazwa Projektu
+        </th>
+        <th>
+            Kod projektu
+        </th>
+        <th>
+           Stan
+        </th>
+        <th>
+            Godziny <br>(niezatwierdzone/zatwierdzone/zaakceptowane)
+        </th>
+        <th>
+            Aktualny budżet (startowy)
+        </th>
+        <th>
+            Pod aktywności
+        </th>
+        <th>
+            Dostępne akcje
+        </th>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model.activities.OrderByDescending(f => f.active))
+        {
+            @if(item.manager == ViewData["User"].ToString()){
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.code)
+                    </td>
+                    <td>
+                        @if(item.active){
+                            <span class="badge badge-pill badge-success">Aktywny</span>
+                        }  
+                        else{
+                            <span class="badge badge-pill badge-dark">Zamknięty</span>
+                        }
+                        
+                    </td>
+                    <td>
+                        (TODO)
+                    </td>
+                    <td>
+                        (TODO)
+                    </td>
+                    <td>
+                        <ul>
+                            @foreach (var i in item.subactivities)
+                            {
+                                <li>@i.code</li>
+                            }
+                        </ul>
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group" aria-label="Basic example">
+                            <a class="btn btn-primary" asp-action="Manage" asp-controller="Projects" asp-route-projectCode="@item.code">Zarządzaj</a>
+                            <button type="button" class="btn btn-primary">Zarządzaj</button>
+                            <button type="button" class="btn btn-success">Edytuj</button>
+                            <button type="button" class="btn btn-warning">Nowa pod aktywność</button>
+                            <button type="button" class="btn btn-dark">Zakończ</button>
+                        </div>
+                    </td>
+                </tr>
+            }
+            
+        }
+
+    </tbody>
+</table>

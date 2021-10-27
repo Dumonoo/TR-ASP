@@ -41,7 +41,10 @@
                     @Html.DisplayFor(modelItem => item.userName)
                 </td>
                 <td>
-                    <a class="btn btn-primary" asp-action="SignIn" asp-route-userName="@item.userName">Zaloguj się</a>
+                    <div class = "col-md-12 text-center">
+                        <a class="btn btn-primary" asp-action="SignIn" asp-route-userName="@item.userName">Zaloguj się</a>
+                    </div>
+                    
                 </td>
 
             </tr>
