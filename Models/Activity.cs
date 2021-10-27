@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
 
 namespace TimeReportingSystem.Models
 {
@@ -8,6 +9,7 @@ namespace TimeReportingSystem.Models
     {
         [Required(ErrorMessage = "Proszę podać kod projektu")]
         [RegularExpression("[a-zA-Z0-9]+", ErrorMessage = "Nazwa projektu może zawierac małe i duże oraz cyfry bez spacji!")]
+        [Remote("ProjCodeUniqueness", "Projects")]
         public string code { get; set; }
         [Required]
         public string manager { get; set; }
@@ -18,6 +20,7 @@ namespace TimeReportingSystem.Models
 
         public int budget { get; set; }
         public bool active { get; set; }
+        
         public List<Subactivity> subactivities { get; set; }
     }
 }

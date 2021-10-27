@@ -21,3 +21,17 @@
         </div>
     </form>
 </div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @* <script>
+        $("#form").on("submit", function (e) {
+            e.preventDefault();
+            var self = $(this);
+            var minutes = parseFloat($("#changeToMinutes").val()) * 60;
+            $("#changeToMinutes").val(minutes.toString());
+            $("#form").off("submit");
+            self.submit();
+        });
+    </script> *@
+}

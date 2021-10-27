@@ -1,0 +1,31 @@
+
+@model TimeReportingSystem.Models.Raport
+@{
+    ViewData["Title"] = "Moje aktywności";
+}
+<h1>@ViewData["Title"]</h1>
+
+@if(ViewData["Raport"].ToString() == "true"){
+
+    <div class="col-md-3 offset-md-9">
+        <div class="dropdown">
+            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Wybierz inny okres
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                @foreach (var item in (IEnumerable<string>)ViewData["Dates"])
+                {
+                    <a class="dropdown-item" asp-action="Index" asp-controller="Raports" asp-route-year_month="@item">@item</a>
+                }
+            </div>
+        </div>
+    </div>
+
+@foreach (var item in (IEnumerable<string>)ViewData["Dates"])
+    {
+        <p>@item</p>
+    }
+}
+else{
+    
+}
