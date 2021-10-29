@@ -1,0 +1,98 @@
+@model TimeReportingSystem.Models.Entry
+
+@{
+    ViewData["Title"] = "Dodaj nową aktywność";
+    Dictionary<string, List<string>> ProjectsInfo = ViewData["projectsInfo"] as Dictionary<string, List<string>>;
+}
+<h1>@ViewData["Title"]</h1>
+
+@foreach (var item in ProjectsInfo)
+{
+    <p>@item.Key</p>
+    foreach (var item2 in item.Value)
+    {
+        <p>@item2</p>
+    }
+    
+}
+<div class="col col-4 justify-content-lg-start">
+    <form asp-action="CreateEntry">
+        <div class="form-horizontal">
+            <div asp-validation-summary="All"></div>
+            <div class="form-group">
+                
+                    <div class="row">
+                        <div class="col">
+                            <label asp-for="code">Kod aktywności</label>
+                            <select class="form-control btn-secondary col-md-8" id="projectCode" name="projectCode">
+                                <option value=null id="0">Brak</option>
+                                @foreach (var item in ProjectsInfo)
+                                {
+                                    <option value="@item.Key" id="@item.Key">@item.Key</option>
+                                }
+                            </select>
+                        </div>
+                        @* &nbsp; *@
+                        <div class="col">
+                            <label asp-for="code">Kod pod aktywności</label>
+                            <select class="form-control btn-secondary col-md-8" id="subCode" name="subCode">
+                                <option value=null id="0">Brak</option>
+                                @foreach (var item in ProjectsInfo)
+                                {
+                                    foreach (var value in item.Value)
+                                    {
+                                        <option hidden value="@value" id="@value" name="project+@item.Key">@value</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                @* @foreach (KeyValuePair<string, string[]> entry in collection)
+                {
+                    
+                } *@
+                @* <select class="form-control btn-primary" id="month" name="month">
+                @for (int i = 1; i <= Months.Length; i++)
+                {
+                    <option value=@i>@Months[i-1]</option>
+                }
+                </select> *@
+                @* <input asp-for="name" placeholder="Wprowadź imię" class="form-control">
+            </div>
+            <div class="form-group">
+                <label asp-for="surname">Nazwisko</label><br>
+                <input asp-for="surname" class="form-control">
+            </div>
+            <div class="form-group">
+                <label asp-for="birthDay">Data urodzenia</label><br>
+                <input type="date" asp-for="birthDay" class="form-control">
+            </div>
+            <div class="form-group">
+                <label asp-for="userName">Nazwa użytkownika</label><br>
+                <input asp-for="userName" class="form-control">
+            </div> *@
+            <div class="form-group">
+                <input type="submit" value="Zarejestruj" class="btn btn-primary"/>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $('#projectCode').change(function() {
+            var selected = $(':selected', this)[0].id;
+            console.log(selected);
+            var nameSpec = 'project+' + selected;
+            var send2 = document.getElementsByName(nameSpec);
+            $("[name^='project+']").each(function(){
+                $(this).attr("hidden", true);
+            })
+            $('[name="' + nameSpec + '"]').each(function(){
+                $(this).removeAttr("hidden");
+            })
+
+        }).trigger('change');
+    </script>
+}
