@@ -1,10 +1,12 @@
 @model TimeReportingSystem.Models.Entry
 
 @{
-    ViewData["Title"] = "Dodaj nową aktywność";
+    ViewData["Title"] = "Edytuj aktywność";
     Dictionary<string, List<string>> ProjectsInfo = ViewData["projectsInfo"] as Dictionary<string, List<string>>;
     string y = ViewData["Year"] as string;
     string m = ViewData["Month"] as string;
+    string index = ViewData["Index"] as string;
+    Entry oldEntry = ViewData["Entry"] as Entry;
     
     int mInt = Int32.Parse(m);
     if(mInt <= 9){
@@ -18,7 +20,8 @@
 <h1>@ViewData["Title"]</h1>
 
 <div class="col col-4 justify-content-lg-start">
-    <form asp-action="CreateEntry">
+    <form asp-action="Edit">
+        <input type="hidden" id="index" name="index" value="@index">
         <div class="form-horizontal">
             <div asp-validation-summary="All"></div>
             <div class="form-group">
@@ -29,7 +32,12 @@
                                 <option value=null id="0">Brak</option>
                                 @foreach (var item in ProjectsInfo)
                                 {
-                                    <option value="@item.Key" id="@item.Key">@item.Key</option>
+                                    if(item.Key == oldEntry.code){
+                                        <option selected value="@item.Key" id="@item.Key">@item.Key</option>
+                                    }
+                                    else{
+                                        <option value="@item.Key" id="@item.Key">@item.Key</option>
+                                    }
                                 }
                             </select>
                         </div>
@@ -41,7 +49,14 @@
                                 {
                                     foreach (var value in item.Value)
                                     {
-                                        <option hidden value="@value" id="@value" name="project+@item.Key">@value</option>
+                                        if(item.Key == oldEntry.code && value == oldEntry.subcode)
+                                        {
+                                            <option selected value="@value" id="@value" name="project+@item.Key">@value</option>
+                                        }
+                                        else
+                                        {
+                                            <option hidden value="@value" id="@value" name="project+@item.Key">@value</option>
+                                        }
                                     }
                                 }
                             </select>
@@ -52,21 +67,23 @@
                         <div class="col-md-12 text-center">
                             <label asp-for="date">Datę aktywności</label>
                             <input type="date" id="date" name="date"
-                            min="@y-@m-01" max="@y-@m-@d">
+                            min="@y-@m-01" max="@y-@m-@d" value="@oldEntry.date">
+                            
                         </div>
                     </div>
                     <div class="row"></div>
                     <div class="row">
                         <label asp-for="time">Ilość deklarowanych minut</label>
-                        <input type="number" id="time" name="time" min="0"> 
+                        <input type="number" id="time" name="time" min="0" value="@oldEntry.time"> 
                     </div>
                     <div class="row"></div>
                     <div class="row">
                         <label asp-for="description">Opis aktywności</label>
-                        <textarea class="form-control" id="description" name="description" rows="4"></textarea>
+                        <textarea class="form-control" id="description" name="description" rows="4">@oldEntry.description</textarea>
                     </div>
                     <div class="row">
-                        <input type="submit" value="Dodaj" class="btn btn-primary"/>
+                        <input type="submit" value="Zatwierdź" class="btn btn-primary"/>
+                        <a class="btn btn-primary" asp-action="Index" >Anuluj</a>
                     </div>
         </div>
     </form>

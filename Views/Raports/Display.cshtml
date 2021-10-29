@@ -1,0 +1,14 @@
+@model TimeReportingSystem.Models.Entry
+@{
+    ViewData["Title"] = "Szczegóły aktywności";
+    
+}
+<h1>@ViewData["Title"]</h1>
+
+<p>Kod projektu: @Html.DisplayFor(modelItem => Model.code)</p>
+<p>Data wykonania: @Html.DisplayFor(modelItem => Model.date)</p>
+<p>Pod aktywność: @Html.DisplayFor(modelItem => Model.subcode)</p>
+
+<p>Zareportowany czas: @Html.DisplayFor(modelItem => Model.time)</p>
+<textarea disabled>@Html.DisplayFor(modelItem => Model.description)</textarea>
+

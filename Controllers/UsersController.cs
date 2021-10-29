@@ -47,23 +47,6 @@ namespace TimeReportingSystem.Controllers
         [HttpPost]
         public IActionResult SignUp(User u)
         {
-            // if(ModelState.IsValid){
-            //     if(IsInUse(u.userName)){
-            //         string json = System.IO.File.ReadAllText("./wwwroot/json/Users.json");
-            //         Users userList = JsonSerializer.Deserialize<Users>(json);
-            //         userList.users.Add(u);
-            //         string saveJson = JsonSerializer.Serialize<Users>(userList);
-            //         System.IO.File.WriteAllText("./wwwroot/json/Users.json", saveJson);
-            //         return View("Index",userList);
-            //     }
-            //     else{
-            //         return View("UserNameTaken", u.userName);
-            //     }
-                
-            // }
-            // else{
-            //     return View();
-            // }
             if(ModelState.IsValid){
                 string json = System.IO.File.ReadAllText("./wwwroot/json/Users.json");
                 Users userList = JsonSerializer.Deserialize<Users>(json);
@@ -71,7 +54,6 @@ namespace TimeReportingSystem.Controllers
                 string saveJson = JsonSerializer.Serialize<Users>(userList);
                 System.IO.File.WriteAllText("./wwwroot/json/Users.json", saveJson);
                 return View("Index",userList);
-                
             }
             else{
                 return View();
@@ -94,7 +76,6 @@ namespace TimeReportingSystem.Controllers
         
         public JsonResult VerifyUserName(string userName)
         {
-            Console.WriteLine(userName);
             string json = System.IO.File.ReadAllText("./wwwroot/json/Users.json");
             Users userList = JsonSerializer.Deserialize<Users>(json);
             
@@ -107,7 +88,6 @@ namespace TimeReportingSystem.Controllers
             return Json(true);
         }
         public bool IsInUse(string userName){
-            Console.WriteLine("hello");
             string json = System.IO.File.ReadAllText("./wwwroot/json/Users.json");
             Users userList = JsonSerializer.Deserialize<Users>(json);
             

@@ -8,11 +8,7 @@ using Microsoft.Extensions.Logging;
 using TimeReportingSystem.Models;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-// using System;
-using System.Collections.Generic;
-// using System.Text.Json;
 using Microsoft.AspNetCore.Http;
-// using System.Linq;
 using System.IO;
 
 
@@ -25,55 +21,42 @@ namespace TimeReportingSystem.Controllers
 
             if(ViewData["User"] != null)
             {
-                Console.WriteLine($"Rok: {DateTime.Now.Year.ToString()} Miesiac {DateTime.Now.Month.ToString()}");
                 ViewData["Raport"] = "false";
 
                 if(year == null || month == null){
                     year = DateTime.Now.Year.ToString();
                     month = DateTime.Now.Month.ToString();
                 }
+                
                 ViewData["Year"] = year;
                 ViewData["Month"] = month;
-                Console.WriteLine(ViewData["Year"]);
-                Console.WriteLine(ViewData["Month"]);
+
+                if(Int32.Parse(month) <= 9){
+                    month = "0" + month;
+                }
                 
                 string userPath = "./wwwroot/json/UsersData/" + ViewData["User"];
                 
                 string fileName = ViewData["User"].ToString() + '-' + year + '-' + month + ".json"; 
-                //TODO przeniesci to do tworzenia user-a
                 if(Directory.Exists(userPath))
                 {
-                    Console.WriteLine("F1");
                     if(System.IO.File.Exists(userPath + '/' + fileName) && Directory.GetFiles(userPath).Length>0)
                     {
-                        // var tempTable = Directory.GetFiles(userPath).Select(i => i = Regex.Match(i, "-[0-9]{4}-[0-9]{1,2}").ToString());
-                        // ViewData["Dates"] = tempTable.Select(i => i = i.Substring(1, i.Length - 1));
                         string json = System.IO.File.ReadAllText(userPath + '/' + fileName);
                         Raport activityRaport = JsonSerializer.Deserialize<Raport>(json);
                         ViewData["Raport"] = "true";
                         return View(activityRaport);
                     }
                     else{
-                        Console.WriteLine("F3");
-                        // System.IO.File.Create(userPath + '/' + fileName);
-                        // Raport newRaport = new Raport();
-                        // newRaport.frozen = false;
-                        // newRaport.entries = new List<Entry>();
-                        // newRaport.accepted = new List<Accepted>();
-                        // string saveJson = JsonSerializer.Serialize<Raport>(newRaport);
-                        // System.IO.File.WriteAllText(userPath + '/' + fileName, saveJson);
                         return View();
                     }
                 }
                 else{
-                    Console.WriteLine("F4");
                     Directory.CreateDirectory(userPath);
                     RedirectToAction("Index", "Raports");
                 }
             }
-            Console.WriteLine("F5");
             return RedirectToAction("Index", "Home");
-            
         }
 
         public IActionResult CreateEntry(string year, string month){
@@ -81,19 +64,200 @@ namespace TimeReportingSystem.Controllers
 
             if(ViewData["User"] != null)
             {
+                ViewData["Month"] = month;
+                ViewData["Year"] = year;
                 string json = System.IO.File.ReadAllText("./wwwroot/json/Activities.json");
                 Activities activityList = JsonSerializer.Deserialize<TimeReportingSystem.Models.Activities>(json);
                 ViewData["projectsInfo"] = ToDictionary(activityList);
-                
-                // Console.WriteLine(ViewData["projectCodes"]);
+                return View();
             }
-             
-            return View();
+            return RedirectToAction("Index", "Home");
         }
         [HttpPost]
         public IActionResult CreateEntry(Entry e){
-            
-            return RedirectToAction("Index", "Raports");
+
+            ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
+
+            if(ViewData["User"] != null)
+            {
+                if(e.subcode == "null")
+                {
+                    e.subcode = null;
+                }
+                string userPath = "./wwwroot/json/UsersData/" + ViewData["User"];
+                string fileName = ViewData["User"].ToString() + "-" + e.date.Substring(0,7) +".json"; 
+                if(Directory.Exists(userPath))
+                {
+                    if(System.IO.File.Exists(userPath + '/' + fileName))
+                    {
+                        string json = System.IO.File.ReadAllText(userPath + '/' + fileName);
+                        Raport activityRaport = JsonSerializer.Deserialize<Raport>(json);
+                        activityRaport.entries.Add(e);
+                        string saveJson = JsonSerializer.Serialize<Raport>(activityRaport);
+                        System.IO.File.WriteAllText(userPath + '/' + fileName, saveJson);
+                    }
+                    else
+                    {
+                        Raport newRaport = new Raport();
+                        newRaport.frozen = false;
+                        newRaport.entries = new List<Entry>();
+                        newRaport.accepted = new List<Accepted>();
+                        newRaport.entries.Add(e);
+                        string saveJson = JsonSerializer.Serialize<Raport>(newRaport);
+                        System.IO.File.WriteAllText(userPath + '/' + fileName, saveJson);
+                    }
+                    return RedirectToAction("Index", "Raports");
+                }
+                else{
+                    Directory.CreateDirectory(userPath);
+                    return View("Error");
+                }
+            }          
+            return RedirectToAction("Index", "Home");
+        }
+        public IActionResult Display(string index, string month, string year)
+        {
+            ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
+
+            if(ViewData["User"] != null)
+            {
+                int id = Int32.Parse(index);
+                if(Int32.Parse(month) <= 9){
+                    month = "0" + month;
+                }
+                string userPath = "./wwwroot/json/UsersData/" + ViewData["User"];
+                string fileName = ViewData["User"].ToString() + "-" + year + "-" + month +".json";
+                if(Directory.Exists(userPath))
+                {
+                    if(System.IO.File.Exists(userPath + '/' + fileName))
+                    {
+                        string json = System.IO.File.ReadAllText(userPath + '/' + fileName);
+                        Raport activityRaport = JsonSerializer.Deserialize<Raport>(json);
+                        return View(activityRaport.entries[id]);
+                    }
+                    else{
+                        return View("Error");
+                    }
+                }
+                else{
+                     return View("Error");
+                }
+
+
+            }
+            return RedirectToAction("Index", "Home");
+        }
+        public IActionResult Edit(string index, string month, string year)
+        {
+            ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
+
+            if(ViewData["User"] != null)
+            {
+                int id = Int32.Parse(index);
+                ViewData["Month"] = month;
+                ViewData["Year"] = year;
+                ViewData["Index"] = index;
+
+
+                if(Int32.Parse(month) <= 9){
+                    month = "0" + month;
+                }
+                string userPath = "./wwwroot/json/UsersData/" + ViewData["User"];
+                string fileName = ViewData["User"].ToString() + "-" + year + "-" + month +".json";
+                if(Directory.Exists(userPath))
+                {
+                    if(System.IO.File.Exists(userPath + '/' + fileName))
+                    {
+                        string json = System.IO.File.ReadAllText(userPath + '/' + fileName);
+                        Raport activityRaport = JsonSerializer.Deserialize<Raport>(json);
+                        string json2 = System.IO.File.ReadAllText("./wwwroot/json/Activities.json");
+                        Activities activityList = JsonSerializer.Deserialize<TimeReportingSystem.Models.Activities>(json2);
+                        ViewData["projectsInfo"] = ToDictionary(activityList);
+                        ViewData["Entry"] = activityRaport.entries[id];
+                        return View(activityRaport.entries[id]);
+                    }
+                    else{
+                        return View("Error");
+                    }
+                }
+                else{
+                     return View("Error");
+                }
+            }
+            return RedirectToAction("Index", "Home");
+        }
+        [HttpPost]
+        public IActionResult Edit(Entry e, string index){
+            ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
+
+            if(ViewData["User"] != null)
+            {
+                var year = e.date.Substring(0, 4);
+                var month = e.date.Substring(5,2);
+                var id = Int32.Parse(index);
+                if(e.subcode == "null")
+                {
+                    e.subcode = null;
+                }
+                string userPath = "./wwwroot/json/UsersData/" + ViewData["User"];
+                string fileName = ViewData["User"].ToString() + "-" + year + "-" + month +".json";
+                if(Directory.Exists(userPath))
+                {
+                    if(System.IO.File.Exists(userPath + '/' + fileName))
+                    {
+                        string json = System.IO.File.ReadAllText(userPath + '/' + fileName);
+                        Raport activityRaport = JsonSerializer.Deserialize<Raport>(json);
+                        activityRaport.entries.Remove(activityRaport.entries[id]);
+                        activityRaport.entries.Add(e);
+                        string saveJson = JsonSerializer.Serialize<Raport>(activityRaport);
+                        System.IO.File.WriteAllText(userPath + '/' + fileName, saveJson);
+                        return RedirectToAction("Index", "Raports");
+                    }
+                    else{
+                        return View("Error");
+                    }
+                }
+                else{
+                     return View("Error");
+                }
+                
+            }
+            return RedirectToAction("Index", "Home");
+        }
+
+        public IActionResult Delete(string index, string month, string year)
+        {
+            ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
+
+            if(ViewData["User"] != null)
+            {
+                int id = Int32.Parse(index);
+                if(Int32.Parse(month) <= 9){
+                    month = "0" + month;
+                }
+                string userPath = "./wwwroot/json/UsersData/" + ViewData["User"];
+                string fileName = ViewData["User"].ToString() + "-" + year + "-" + month +".json";
+                if(Directory.Exists(userPath))
+                {
+                    if(System.IO.File.Exists(userPath + '/' + fileName))
+                    {
+                        string json = System.IO.File.ReadAllText(userPath + '/' + fileName);
+                        Raport activityRaport = JsonSerializer.Deserialize<Raport>(json);
+                        activityRaport.entries.Remove(activityRaport.entries[id]);
+                        string saveJson = JsonSerializer.Serialize<Raport>(activityRaport);
+                        System.IO.File.WriteAllText(userPath + '/' + fileName, saveJson);
+                        return RedirectToAction("Index", "Raports");
+                    }
+                    else{
+                        return View("Error");
+                    }
+                }
+                else{
+                     return View("Error");
+                }
+                
+            }
+            return RedirectToAction("Index", "Home");
         }
 
         public static Dictionary<string, List<string>> ToDictionary(Activities a)
@@ -111,6 +275,39 @@ namespace TimeReportingSystem.Controllers
             
             return codes;
         }
+    public IActionResult Submit(string month, string year)
+    {
+            ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
+
+            if(ViewData["User"] != null)
+            {
+                if(Int32.Parse(month) <= 9){
+                    month = "0" + month;
+                }
+                string userPath = "./wwwroot/json/UsersData/" + ViewData["User"];
+                string fileName = ViewData["User"].ToString() + "-" + year + "-" + month +".json";
+                if(Directory.Exists(userPath))
+                {
+                    if(System.IO.File.Exists(userPath + '/' + fileName))
+                    {
+                        string json = System.IO.File.ReadAllText(userPath + '/' + fileName);
+                        Raport activityRaport = JsonSerializer.Deserialize<Raport>(json);
+                        activityRaport.frozen = true;
+                        string saveJson = JsonSerializer.Serialize<Raport>(activityRaport);
+                        System.IO.File.WriteAllText(userPath + '/' + fileName, saveJson);
+                        return RedirectToAction("Index", "Raports");
+                    }
+                    else{
+                        return View("Error");
+                    }
+                }
+                else{
+                     return View("Error");
+                }
+                
+            }
+            return RedirectToAction("Index", "Home");
+    }
 
     }
 }

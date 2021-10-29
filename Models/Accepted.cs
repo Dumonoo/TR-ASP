@@ -6,7 +6,9 @@ namespace TimeReportingSystem.Models
 {
     public class Accepted
     {
+        [Required]
         public string code { get; set; }
+        [Required]
         public int time { get; set; }
     }
     
