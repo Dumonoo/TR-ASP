@@ -224,5 +224,52 @@ namespace TimeReportingSystem.Controllers
             return RedirectToAction("Index", "Home");
     }
 
+    public IActionResult MonthSummary(string month, string year){
+        ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
+        if(ViewData["User"] != null)
+            {
+                ViewData["Raport"] = "false";
+
+                if(year == null || month == null){
+                    year = DateTime.Now.Year.ToString();
+                    month = DateTime.Now.Month.ToString();
+                }
+                var userName = ViewData["User"].ToString();
+                ViewData["Year"] = year;
+                ViewData["Month"] = month;
+
+                if(Int32.Parse(month) <= 9){
+                    month = "0" + month;
+                }
+                if(appRepository.UserRaportExists(userName, year, month)){
+                    ViewData["Raport"] = "true";
+                    var projects = appRepository.GetActivities();
+                    var list = new List<Tuple<string,int, int, bool, bool>>();
+                    var raports = appRepository.GetUserRaport(userName, year, month);
+                    foreach (var project in projects.activities)
+                    {
+                        if(raports.entries.Exists(e => e.code == project.code)){
+                            var submitedTime = raports.entries.Where(e=>e.code == project.code).Select(d => d.time).Sum();
+                            var acceptedTime = 0;
+                            var isAccepted = raports.accepted.Exists(e=> e.code == project.code);
+                            var isSubmitted = raports.frozen;
+                            if(isAccepted)
+                            {
+                                acceptedTime = raports.accepted.Find(e => e.code == project.code).time;
+                            }
+                            list.Add(new Tuple<string,int, int, bool, bool>(project.code, submitedTime, acceptedTime, isSubmitted, isAccepted));
+                        }
+                    }
+                    ViewData["Summary"] = list;
+                    return View();
+                }
+                else{
+                    return View();
+                }
+            }
+            return RedirectToAction("Index", "Home");
+    }
+        
+
     }
 }

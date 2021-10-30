@@ -32,7 +32,9 @@ namespace TimeReportingSystem.Controllers{
         public IActionResult MyProjects(){
             ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
 
-            if(ViewData["User"] != null){              
+            if(ViewData["User"] != null){  
+                var userName = ViewData["User"].ToString();       
+                ViewData["ProjectDetails"] = appRepository.GetProjectsInfo(userName);
                 return View(appRepository.GetActivities());
             }
             return RedirectToAction("Index", "Home");

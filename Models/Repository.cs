@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace TimeReportingSystem.Models
 {
@@ -102,7 +103,41 @@ namespace TimeReportingSystem.Models
             }
             return true;
         }
+        public Dictionary<string, Tuple<int, int, int>> GetProjectsInfo(string userName){
+            var myProjectDic = new Dictionary<string, Tuple<int, int, int>>();
+            foreach (var project in projectsData.activities)
+            {
+                if(project.manager == userName){
+                    myProjectDic.Add(project.code, GetHours(project.code));
+                }
+            }
+            return myProjectDic;         
+        }
+        public Tuple<int, int, int> GetHours(string projectCode){
+            
+            var notSubmitted = 0;
+            var submitted = 0;
+            var accepted = 0;
 
+            foreach (var user in raportsData)
+            {
+                foreach (var raport in user.Value)
+                {
+                    if(raport.Item2.frozen == false){
+                        notSubmitted += raport.Item2.entries.Where(e => e.code == projectCode).Select(d => d.time).Sum();
+                    }
+                    else{
+                        if(!raport.Item2.accepted.Exists(e => e.code == projectCode)){
+                            submitted += raport.Item2.entries.Where(e => e.code == projectCode).Select(d => d.time).Sum();
+                        }
+                        else{
+                            accepted += raport.Item2.accepted.Find(e => e.code == projectCode).time;
+                        }
+                    }
+                }
+            }
+            return new Tuple<int, int, int>(notSubmitted, submitted, accepted);
+        }
         
         public Users GetUsersData(){
             return usersData;
@@ -161,7 +196,8 @@ namespace TimeReportingSystem.Models
             return raportsData;
         }
         public void InsertRaport(Raport raport, string year, string month, string userName){
-            // raportsData[userName].Add()
+            // raportsData[userName].Add()+
+            // not in use
             string period = year + "-" + month;
         }
         public void AcceptRaport(string year, string month, string userName, string projectCode, int acceptedTime){
