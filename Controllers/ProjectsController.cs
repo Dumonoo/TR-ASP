@@ -7,23 +7,23 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using TimeReportingSystem.Models;
 using System.Text.Json;
-using System;
-using System.Collections.Generic;
-using System.Text.Json;
 using Microsoft.AspNetCore.Http;
-using System.Linq;
 using System.IO;
 
 
 namespace TimeReportingSystem.Controllers{
     public class ProjectsController:Controller{
+        public Repository appRepository;
+        
+        public ProjectsController(){
+            appRepository = new Repository();
+            appRepository.Load();
+        }
         public IActionResult Index(){
             ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
 
-            if(ViewData["User"] != null){
-                string json = System.IO.File.ReadAllText("./wwwroot/json/Activities.json");
-                Activities activityList = JsonSerializer.Deserialize<TimeReportingSystem.Models.Activities>(json);
-                return View(activityList);
+            if(ViewData["User"] != null){                
+                return View(appRepository.GetActivities());
             }
             return RedirectToAction("Index", "Home");
         }
@@ -31,11 +31,8 @@ namespace TimeReportingSystem.Controllers{
         public IActionResult MyProjects(){
             ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
 
-            if(ViewData["User"] != null){
-                string json = System.IO.File.ReadAllText("./wwwroot/json/Activities.json");
-                Activities activityList = JsonSerializer.Deserialize<TimeReportingSystem.Models.Activities>(json);
-                
-                return View(activityList);
+            if(ViewData["User"] != null){              
+                return View(appRepository.GetActivities());
             }
             return RedirectToAction("Index", "Home");
         }
@@ -44,6 +41,7 @@ namespace TimeReportingSystem.Controllers{
             ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
             ViewData["ProjectCode"] = projectCode;
             
+            //TODO
             if(ViewData["User"] != null){
                 
                 string path = "./wwwroot/json/UsersData/";
@@ -91,10 +89,7 @@ namespace TimeReportingSystem.Controllers{
             ViewData["ProjectCode"] = projectCode;
             
             if(ViewData["User"] != null){
-                string json = System.IO.File.ReadAllText("./wwwroot/json/Activities.json");
-                Activities activityList = JsonSerializer.Deserialize<TimeReportingSystem.Models.Activities>(json);
-                TimeReportingSystem.Models.Activity a = activityList.activities.Find(i => i.code == projectCode);
-                return View(a);
+                return View(appRepository.GetActivityByCode(projectCode));
             }
             return RedirectToAction("Index", "Home");
         }
@@ -104,19 +99,9 @@ namespace TimeReportingSystem.Controllers{
             ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
 
             if(ViewData["User"] != null){
-                  
-                a.active = true;
-                a.subactivities = new List<Subactivity>();
-                a.budget = a.budget * 60;
                 if(ModelState.IsValid){
-                    string json = System.IO.File.ReadAllText("./wwwroot/json/Activities.json");
-                    Activities activityList = JsonSerializer.Deserialize<TimeReportingSystem.Models.Activities>(json);
-                    TimeReportingSystem.Models.Activity oldA = activityList.activities.Find(i => i.code == a.code);
-                    activityList.activities.Remove(oldA);
-                    activityList.activities.Add(a);
-                    string saveJson = JsonSerializer.Serialize<TimeReportingSystem.Models.Activities>(activityList);
-                    System.IO.File.WriteAllText("./wwwroot/json/Activities.json", saveJson);
-                    return View("MyProjects", activityList);
+                    appRepository.UpdateActivity(a);
+                    return RedirectToAction("MyProjects", "Projects");
                 }
                 else{
                     return View();
@@ -138,15 +123,12 @@ namespace TimeReportingSystem.Controllers{
         [HttpPost]
         public IActionResult NewSubactivity(Subactivity s, string projectCode){
             ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
+
             if(ViewData["User"] != null){
                   
                 if(ModelState.IsValid){
-                    string json = System.IO.File.ReadAllText("./wwwroot/json/Activities.json");
-                    Activities activityList = JsonSerializer.Deserialize<TimeReportingSystem.Models.Activities>(json);
-                    activityList.activities.Find(i => i.code == projectCode).subactivities.Add(s);
-                    string saveJson = JsonSerializer.Serialize<TimeReportingSystem.Models.Activities>(activityList);
-                    System.IO.File.WriteAllText("./wwwroot/json/Activities.json", saveJson);
-                    return View("MyProjects", activityList);
+                    appRepository.InsertSubActivity(s, projectCode);
+                    return RedirectToAction("MyProjects", "Projects");
                 }
                 else{
                     return View();
@@ -158,7 +140,7 @@ namespace TimeReportingSystem.Controllers{
             ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
 
             if(ViewData["User"] != null){
-                  
+                //TODO
                 return View();
             }
             return RedirectToAction("Index", "Home");
@@ -179,17 +161,10 @@ namespace TimeReportingSystem.Controllers{
 
             if(ViewData["User"] != null){
                   
-                a.active = true;
-                a.subactivities = new List<Subactivity>();
-                a.budget = a.budget * 60;
+                
                 if(ModelState.IsValid){
-                    string json = System.IO.File.ReadAllText("./wwwroot/json/Activities.json");
-                    Activities activityList = JsonSerializer.Deserialize<TimeReportingSystem.Models.Activities>(json);
-                    activityList.activities.Add(a);
-                    string saveJson = JsonSerializer.Serialize<TimeReportingSystem.Models.Activities>(activityList);
-                    System.IO.File.WriteAllText("./wwwroot/json/Activities.json", saveJson);
-                    return View("MyProjects", activityList);
-                    
+                    appRepository.InsertActivity(a);
+                    return RedirectToAction("MyProjects", "Projects");
                 }
                 else{
                     return View();
@@ -211,9 +186,7 @@ namespace TimeReportingSystem.Controllers{
         public bool ProjectCodeIsInUse(string projectCode)
         {
             bool isNotTaken = true;
-            string json = System.IO.File.ReadAllText("./wwwroot/json/Activities.json");
-            Activities activityList = JsonSerializer.Deserialize<TimeReportingSystem.Models.Activities>(json);
-            activityList.activities.ForEach(delegate(TimeReportingSystem.Models.Activity a){if(a.code == projectCode){isNotTaken = false;}});
+            appRepository.GetActivities().activities.ForEach(delegate(TimeReportingSystem.Models.Activity a){if(a.code == projectCode){isNotTaken = false;}});
 
             return isNotTaken;
         }
@@ -229,9 +202,7 @@ namespace TimeReportingSystem.Controllers{
         public bool SubActivityCodeIsInUse(string code, string projectCode)
         {
             bool isNotTaken = true;
-            string json = System.IO.File.ReadAllText("./wwwroot/json/Activities.json");
-            Activities activityList = JsonSerializer.Deserialize<TimeReportingSystem.Models.Activities>(json);
-            activityList.activities.Find(i => i.code == projectCode).subactivities.ForEach(delegate(Subactivity s){if(s.code == code){isNotTaken = false;}});
+            appRepository.GetActivities().activities.Find(i => i.code == projectCode).subactivities.ForEach(delegate(Subactivity s){if(s.code == code){isNotTaken = false;}});
 
             return isNotTaken;
         }

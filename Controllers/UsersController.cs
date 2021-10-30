@@ -23,18 +23,11 @@ namespace TimeReportingSystem.Controllers
         public Repository appRepository;
         
         public UsersController(){
-            Console.WriteLine("helooooooooooooooooooooooooooo");
             appRepository = new Repository();
             appRepository.LoadUsers();
         }
         public IActionResult Index()
         {
-            // string json = System.IO.File.ReadAllText("./wwwroot/json/Users.json");
-            // Users userList = JsonSerializer.Deserialize<Users>(json);
-            // usersData = new Users();         //to  podejscie dziala
-            // usersData.Load();
-            // return View(usersData);
-
             return View(appRepository.GetUsersData());         
         }
         public IActionResult SignUp()
@@ -50,17 +43,12 @@ namespace TimeReportingSystem.Controllers
         public IActionResult SignUp(User u)
         {
             if(ModelState.IsValid){
-                string json = System.IO.File.ReadAllText("./wwwroot/json/Users.json");
-                Users userList = JsonSerializer.Deserialize<Users>(json);
-                userList.users.Add(u);
-                string saveJson = JsonSerializer.Serialize<Users>(userList);
-                System.IO.File.WriteAllText("./wwwroot/json/Users.json", saveJson);
-                return View("Index",userList);
+                appRepository.InsertUser(u);
+                return RedirectToAction("Index", "Users");
             }
             else{
                 return View();
-            }
-            
+            }  
         }
         
         public IActionResult SignIn(string userName){
@@ -78,9 +66,6 @@ namespace TimeReportingSystem.Controllers
         
         public JsonResult VerifyUserName(string userName)
         {
-            string json = System.IO.File.ReadAllText("./wwwroot/json/Users.json");
-            Users userList = JsonSerializer.Deserialize<Users>(json);
-            
             bool newUsername = IsInUse(userName);
             
             if (!newUsername)
@@ -90,11 +75,9 @@ namespace TimeReportingSystem.Controllers
             return Json(true);
         }
         public bool IsInUse(string userName){
-            string json = System.IO.File.ReadAllText("./wwwroot/json/Users.json");
-            Users userList = JsonSerializer.Deserialize<Users>(json);
             
             bool isNotTaken = true;
-            userList.users.ForEach(delegate(User u){if(u.userName == userName){isNotTaken = false;}});
+            appRepository.GetUsersData().users.ForEach(delegate(User u){if(u.userName == userName){isNotTaken = false;}});
             return isNotTaken;
         }
     }
