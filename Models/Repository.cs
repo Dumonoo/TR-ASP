@@ -139,8 +139,8 @@ namespace TimeReportingSystem.Models
 
         public void UpdateActivity(Activity a){
             Activity old = projectsData.activities.Find(i => i.code == a.code);
-            a.budget = a.budget * 60;
             a.subactivities = old.subactivities;
+            a.budget = a.budget * 60;
             a.manager = old.manager;
             a.active = old.active;
             projectsData.activities.Remove(old);
@@ -157,10 +157,35 @@ namespace TimeReportingSystem.Models
             GetActivityByCode(projectCode).subactivities.Add(subactivity);
             SaveProjects();
         }
-
+        public Dictionary<string, List<Tuple<string, Raport>>> GetUserRaports(){
+            return raportsData;
+        }
         public void InsertRaport(Raport raport, string year, string month, string userName){
             // raportsData[userName].Add()
             string period = year + "-" + month;
+        }
+        public void AcceptRaport(string year, string month, string userName, string projectCode, int acceptedTime){
+            string period = year + "-" + month;
+            if(raportsData[userName].Exists(e => e.Item1 == period)){
+                var newAcceptedTime = new Accepted();
+                newAcceptedTime.code = projectCode;
+                newAcceptedTime.time = acceptedTime;
+                raportsData[userName].Find(e => e.Item1 == period).Item2.accepted.Add(newAcceptedTime);
+                SaveRaports();
+            }
+            else{
+                Console.WriteLine("ERROR - dunno");
+            }
+        }
+        public void ChangeRaport(string year, string month, string userName, string projectCode, int acceptedTime){
+            string period = year + "-" + month;
+            if(raportsData[userName].Exists(e => e.Item1 == period)){
+                raportsData[userName].Find(e => e.Item1 == period).Item2.accepted.Find(e => e.code == projectCode).time = acceptedTime;
+                SaveRaports();
+            }
+            else{
+                Console.WriteLine("ERROR - dunno");
+            }
         }
 
         public void InsertEntry(Entry entry, string year, string month, string userName){

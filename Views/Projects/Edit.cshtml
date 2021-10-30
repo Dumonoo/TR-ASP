@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "Edytuj projekt: " + ViewData["ProjectCode"];
+    @* var min = Int32.Parse(ViewData["Budget"].ToString()); *@
+    @* double minutes = 60; *@
     double minutes = Model.budget / 60;
 }
 <h1>@ViewData["Title"]</h1>

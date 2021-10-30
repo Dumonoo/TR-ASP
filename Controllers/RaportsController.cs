@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using TimeReportingSystem.Models;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
 using System.IO;
