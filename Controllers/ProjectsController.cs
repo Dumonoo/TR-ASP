@@ -57,6 +57,10 @@ namespace TimeReportingSystem.Controllers{
             return RedirectToAction("Index", "Home");
         }
 
+        public Dictionary<string , List<object>> Submitted(){
+            var subs = new Dictionary<string , List<object>>();
+            return subs;
+        }
         // public static Directory<string, List<Entry>> Submitted()
         // {
 

@@ -9,7 +9,7 @@ using TimeReportingSystem.Models;
 using System.Text.Json;
 // using System;
 // using System.Collections.Generic;
-// using System.Text.Json;
+
 using Microsoft.AspNetCore.Http;
 // using System.Linq;
 
@@ -19,21 +19,23 @@ namespace TimeReportingSystem.Controllers
     public class UsersController : Controller
     {
         public const string SessionUser = "_User";
+        public Users usersData;
+        public Repository appRepository;
         
+        public UsersController(){
+            Console.WriteLine("helooooooooooooooooooooooooooo");
+            appRepository = new Repository();
+            appRepository.LoadUsers();
+        }
         public IActionResult Index()
         {
-            
-            try
-            {
-                string json = System.IO.File.ReadAllText("./wwwroot/json/Users.json");
-                Users userList = JsonSerializer.Deserialize<Users>(json);
-                return View(userList);
-            }
-            catch (System.Exception)
-            {
-                
-                throw;
-            }
+            // string json = System.IO.File.ReadAllText("./wwwroot/json/Users.json");
+            // Users userList = JsonSerializer.Deserialize<Users>(json);
+            // usersData = new Users();         //to  podejscie dziala
+            // usersData.Load();
+            // return View(usersData);
+
+            return View(appRepository.GetUsersData());         
         }
         public IActionResult SignUp()
         {
