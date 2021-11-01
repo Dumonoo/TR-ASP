@@ -196,8 +196,11 @@ namespace TimeReportingSystem.Controllers{
             if(ViewData["User"] != null){
                 var year = period.Substring(0,4);
                 var month = period.Substring(5,2);
-                appRepository.AcceptRaport(year, month, userName, projectCode, Int32.Parse(acceptedTime));
-                return RedirectToAction("Manage", "Projects", new{projectCode = projectCode});
+                var managerName = ViewData["User"].ToString();
+                if(appRepository.GetProjectInfo(projectCode).manager == managerName){
+                    appRepository.AcceptRaport(year, month, userName, projectCode, Int32.Parse(acceptedTime));
+                    return RedirectToAction("Manage", "Projects", new{projectCode = projectCode});
+                }
     
             }
             return RedirectToAction("Index", "Home");

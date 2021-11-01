@@ -200,8 +200,11 @@ namespace TimeReportingSystem.Models
         }
         public bool IsRaportSubmitted(string userName, string year, string month){
             string period = year + "-" + month;
-            return raportsData[userName].Any(e=> e.Item1 == period);
-            // Find(e => e.Item1 == period).Item2.frozen;
+            if(raportsData[userName].Any(e => e.Item1 == period))
+            {
+                return raportsData[userName].Find(e => e.Item1 == period).Item2.frozen;
+            }
+            return false;
         }
         public bool IsProjectActive(string projectCode){
             return projectsData.activities.Find(e => e.code == projectCode).active;
