@@ -3,19 +3,25 @@
     ViewData["Title"] = "Moje aktywności";
     var Months = new[]{"Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"};
     var selectedMonth = Int32.Parse(ViewData["Month"].ToString());
-    var selectedYear = ViewData["Year"];
+    var selectedYear = ViewData["Year"] as string;
+    var selectedYearNumber = Int32.Parse(selectedYear);
     var summary = ViewData["Summary"] as List<Tuple<string,int, int, bool, bool>>;
 }
 <h1>@ViewData["Title"] za @Months[selectedMonth - 1] - @selectedYear r</h1>
  
 
-<form asp-action="Index" method="get">
+<form asp-action="MonthSummary" method="get">
     <div class="row justify-content-end no-gutters">
-        <div class="col-1">
+        <div class="col-sm-2">
             <select class="form-control btn-primary" id="month" name="month">
                 @for (int i = 1; i <= Months.Length; i++)
                 {
-                    <option value=@i>@Months[i-1]</option>
+                    if(selectedMonth == i){
+                        <option selected value=@i>@Months[i-1]</option>
+                    }
+                    else{
+                        <option value=@i>@Months[i-1]</option>
+                    }
                 }
             </select>
         </div>
@@ -24,7 +30,12 @@
             <select class="form-control btn-primary " id="year" name="year">
                 @for (int i = DateTime.Now.Year; i > DateTime.Now.Year - 15; i--)
                 {
-                    <option value=@i>@i</option>
+                    if(selectedYearNumber == i){
+                        <option selected value=@i>@i</option>
+                    }
+                    else{
+                        <option value=@i>@i</option>
+                    }
                 }
             </select>
         </div>
@@ -68,10 +79,10 @@
                     <td>
                         @if(entry.Item4){
                             if(entry.Item5){
-                                <span class="badge badge-pill badge-success">Zaakceptowany</span>
+                                <span class="badge badge-pill badge-success">Zaakceptowana</span>
                             }
                             else{
-                                <span class="badge badge-pill badge-warning">Zgłoszony</span>
+                                <span class="badge badge-pill badge-warning">Zgłoszona</span>
                             }
                         }  
                         else{

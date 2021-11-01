@@ -53,7 +53,7 @@ namespace TimeReportingSystem.Controllers
         public IActionResult SignIn(string userName){
             HttpContext.Session.SetString(SessionUser, userName);
             ViewData["User"] = HttpContext.Session.GetString(SessionUser);
-            return View();
+            return RedirectToAction("Index", "Raports");
         }
 
         public IActionResult LogOut(){

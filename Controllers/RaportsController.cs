@@ -18,7 +18,6 @@ namespace TimeReportingSystem.Controllers
         public Repository appRepository;
         
         public RaportsController(){
-            Console.WriteLine("hello");
             appRepository = new Repository();
             appRepository.Load();
             appRepository.LoadRaports();
@@ -37,13 +36,16 @@ namespace TimeReportingSystem.Controllers
                 var userName = ViewData["User"].ToString();
                 ViewData["Year"] = year;
                 ViewData["Month"] = month;
+                ViewData["IsSubmitted"] = false;
 
                 if(Int32.Parse(month) <= 9){
                     month = "0" + month;
                 }
                 if(appRepository.UserRaportExists(userName, year, month)){
                     ViewData["Raport"] = "true";
-                    return View(appRepository.GetUserRaport(userName, year, month));
+                    var userRaports = appRepository.GetUserRaport(userName, year, month);
+                    ViewData["IsSubmitted"] = userRaports.frozen;
+                    return View(userRaports);
                 }
                 else{
                     return View();
@@ -55,12 +57,16 @@ namespace TimeReportingSystem.Controllers
         public IActionResult CreateEntry(string year, string month){
             ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
 
+            
             if(ViewData["User"] != null)
             {
-                ViewData["Month"] = month;
-                ViewData["Year"] = year;
-                ViewData["projectsInfo"] = ToDictionary(appRepository.GetActivities());
-                return View();
+                var userName = ViewData["User"].ToString();
+                if(!appRepository.IsRaportSubmitted(userName, year, month)){
+                    ViewData["Month"] = month;
+                    ViewData["Year"] = year;
+                    ViewData["projectsInfo"] = ToDictionary(appRepository.GetActivities());
+                    return View();
+                }                
             }
             return RedirectToAction("Index", "Home");
         }
@@ -81,7 +87,7 @@ namespace TimeReportingSystem.Controllers
                 string month = e.date.Substring(5,2);
                 appRepository.InsertEntry(e, year, month, userName); 
                 
-                return RedirectToAction("Index", "Raports");
+                return RedirectToAction("Index", "Raports", new{month = month, year = year});
                 
             }          
             return RedirectToAction("Index", "Home");

@@ -57,6 +57,9 @@ namespace TimeReportingSystem.Models
                     string date = tempDate.Substring(1,7);
                     string json = System.IO.File.ReadAllText(file);
                     Raport raport = JsonSerializer.Deserialize<Raport>(json);
+                    if(!raport.entries.Any()){
+                        continue;
+                    }
                     userRaports.Add(new Tuple<string, Raport>(date, raport));
                 }
                 raportsData.Add(user.userName, userRaports);
@@ -194,6 +197,21 @@ namespace TimeReportingSystem.Models
         }
         public Dictionary<string, List<Tuple<string, Raport>>> GetUserRaports(){
             return raportsData;
+        }
+        public bool IsRaportSubmitted(string userName, string year, string month){
+            string period = year + "-" + month;
+            return raportsData[userName].Any(e=> e.Item1 == period);
+            // Find(e => e.Item1 == period).Item2.frozen;
+        }
+        public bool IsProjectActive(string projectCode){
+            return projectsData.activities.Find(e => e.code == projectCode).active;
+        }
+        public void CloseProject(string projectCode){
+            projectsData.activities.Find(e => e.code == projectCode).active = false;
+            SaveProjects();
+        }
+        public Activity GetProjectInfo(string projectCode){
+            return projectsData.activities.Find(e => e.code == projectCode);
         }
         public void InsertRaport(Raport raport, string year, string month, string userName){
             // raportsData[userName].Add()+

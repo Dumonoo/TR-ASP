@@ -28,7 +28,7 @@ namespace TimeReportingSystem.Controllers{
             }
             return RedirectToAction("Index", "Home");
         }
-
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult MyProjects(){
             ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
 
@@ -134,8 +134,14 @@ namespace TimeReportingSystem.Controllers{
             ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
 
             if(ViewData["User"] != null){
-                //TODO
-                return View();
+                var userName = ViewData["User"].ToString();
+                var projectInfo = appRepository.GetProjectInfo(projectCode);
+                if(projectInfo.active && projectInfo.manager == userName)
+                {   
+                    appRepository.CloseProject(projectCode);
+                    return RedirectToAction("MyProjects", "Projects");
+                }
+                
             }
             return RedirectToAction("Index", "Home");
         }

@@ -15,8 +15,10 @@
                 <input asp-for="code" class="form-control">
                 <input id="projectCode" name="projectCode" type="hidden" value="@ViewData["ProjectCode"]">
             </div>
+            <br>
             <div class="form-group">
                 <input type="submit" value="Dodaj nową" class="btn btn-primary"/>
+                <a href="##" onClick="history.go(-1); return false;" class="btn btn-warning">Anuluj</a>
             </div>
         </div>
     </form>
