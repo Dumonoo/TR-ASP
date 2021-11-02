@@ -39,7 +39,7 @@ namespace TimeReportingSystem.Controllers
                 ViewData["IsSubmitted"] = false;
 
                 if(Int32.Parse(month) <= 9){
-                    month = "0" + month;
+                    month = "0" + Int32.Parse(month).ToString();
                 }
                 if(appRepository.UserRaportExists(userName, year, month)){
                     ViewData["Raport"] = "true";
