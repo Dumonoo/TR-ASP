@@ -77,9 +77,13 @@ namespace TimeReportingSystem.Controllers
 
             if(ViewData["User"] != null)
             {
-                if(e.subcode == "null")
+                if(e.subcode == "null" || e.subcode == null)
                 {
-                    e.subcode = null;
+                    e.subcode = "";
+                }
+                if(e.description == "null" || e.description == null)
+                {
+                    e.description = "";
                 }
                 
                 var userName = ViewData["User"].ToString();

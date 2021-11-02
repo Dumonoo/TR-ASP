@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Szczegóły aktywności dla projektu - " + ViewData["ProjectCode"];
     var usersData = ViewData["Users"] as Users;
+    var projectCode = ViewData["ProjectCode"] as string;
    
 }
 <h1>@ViewData["Title"]</h1>
@@ -25,12 +26,15 @@
     <tbody>
         @foreach (var entry in Model.entries)
         {
-            <tr>
-                <td>@Html.DisplayFor(modelItem => entry.date)</td>
-                <td>@Html.DisplayFor(modelItem => entry.subcode)</td>
-                <td>@Html.DisplayFor(modelItem => entry.time)</td>
-                <td>@Html.DisplayFor(modelItem => entry.description)</td>
-            </tr>
+            @if (entry.code == projectCode)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => entry.date)</td>
+                    <td>@Html.DisplayFor(modelItem => entry.subcode)</td>
+                    <td>@Html.DisplayFor(modelItem => entry.time)</td>
+                    <td>@Html.DisplayFor(modelItem => entry.description)</td>
+                </tr>
+            }
         }
     </tbody>
 </table>

@@ -1,6 +1,7 @@
-@model List<TimeReportingSystem.Models.MyProjectModelView>
+@model TimeReportingSystem.Models.Activities
 @{
     ViewData["Title"] = "Moje Projekty";
+    var ProjectDetails = ViewData["ProjectDetails"] as Dictionary<string, Tuple<int, int, int>>;
 }
 <h1>@ViewData["Title"]</h1>
 
@@ -33,18 +34,18 @@
     </thead>
 
     <tbody>
-        @foreach (var entry in Model)
+        @foreach (var item in Model.activities.OrderByDescending(f => f.active))
         {
-            
+            @if(item.manager == ViewData["User"].ToString()){
                 <tr>
                     <td>
-                        @entry.projectName
+                        @Html.DisplayFor(modelItem => item.name)
                     </td>
                     <td>
-                        @entry.projectCode
+                        @Html.DisplayFor(modelItem => item.code)
                     </td>
                     <td>
-                        @if(entry.active){
+                        @if(item.active){
                             <span class="badge badge-pill badge-success">Aktywny</span>
                         }  
                         else{
@@ -53,26 +54,29 @@
                         
                     </td>
                     <td>
-                        ( @entry.notSubmittedHours \ @entry.submittedHours \ @entry.acceptedHours )
+                        ( @ProjectDetails[item.code].Item1 \ @ProjectDetails[item.code].Item2 \ @ProjectDetails[item.code].Item3 )
                     </td>
                     <td>
-                        @entry.budgetNow (@entry.startbudget)    
+                        @{
+                            var remainingBudget = item.budget - ProjectDetails[item.code].Item3;
+                        }
+                        @remainingBudget (@item.budget)    
                     </td>
                     <td>
                         <ul>
-                            @foreach (var i in entry.subactivituNames)
+                            @foreach (var i in item.subactivities)
                             {
-                                <li>@i</li>
+                                <li>@i.code</li>
                             }
                         </ul>
                     </td>
                     <td>
                         <div class="btn-group" role="group" aria-label="Basic example">
-                                <a class="btn btn-primary" asp-action="Manage" asp-controller="Projects" asp-route-projectCode="@entry.projectCode">Zarządzaj</a>
-                            @if(entry.active== true){
-                                <a class="btn btn-success" asp-action="Edit" asp-controller="Projects" asp-route-projectCode="@entry.projectCode">Edytuj</a>
-                                <a class="btn btn-warning" asp-action="NewSubactivity" asp-controller="Projects" asp-route-projectCode="@entry.projectCode">Nowa pod aktywność</a>
-                                <a class="btn btn-dark" asp-action="CloseProject" asp-controller="Projects" asp-route-projectCode="@entry.projectCode">Zamknij projekt</a>
+                            @if(item.active == true){
+                                <a class="btn btn-primary" asp-action="Manage" asp-controller="Projects" asp-route-projectCode="@item.code">Zarządzaj</a>
+                                <a class="btn btn-success" asp-action="Edit" asp-controller="Projects" asp-route-projectCode="@item.code">Edytuj</a>
+                                <a class="btn btn-warning" asp-action="NewSubactivity" asp-controller="Projects" asp-route-projectCode="@item.code">Nowa pod aktywność</a>
+                                <a class="btn btn-dark" asp-action="CloseProject" asp-controller="Projects" asp-route-projectCode="@item.code">Zamknij projekt</a>
                             }
                         </div>
                     </td>
