@@ -28,6 +28,7 @@ namespace TimeReportingSystem.Controllers{
             }
             return RedirectToAction("Index", "Home");
         }
+        
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult MyProjects(){
             ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
@@ -35,9 +36,7 @@ namespace TimeReportingSystem.Controllers{
             if(ViewData["User"] != null){  
                 var userName = ViewData["User"].ToString();
                 var myProjectsData = appRepository.GetMyProjects(userName);
-                return View(myProjectsData);    
-                // ViewData["ProjectDetails"] = appRepository.GetProjectsInfo(userName);
-                // return View(appRepository.GetActivities());
+                return View(myProjectsData);
             }
             return RedirectToAction("Index", "Home");
         }
@@ -47,14 +46,8 @@ namespace TimeReportingSystem.Controllers{
             ViewData["ProjectCode"] = projectCode;
             
             if(ViewData["User"] != null){
-                // var allRaports = appRepository.GetUserRaports();
-                // var allUsers = appRepository.GetUsersData();
-                
-                // ViewData["Raports"] = appRepository.GetUserRaports();
-                // ViewData["Users"] = appRepository.GetUsersData();
-                var manageData = appRepository.GetManageData(projectCode); // TODO
+                var manageData = appRepository.GetManageData(projectCode); 
                 return View(manageData);
-                // return View();
             }
             return RedirectToAction("Index", "Home");
         }
@@ -64,7 +57,6 @@ namespace TimeReportingSystem.Controllers{
             ViewData["ProjectCode"] = projectCode;
             
             if(ViewData["User"] != null){
-                // ViewData["Budget"] = appRepository.GetActivityByCode(projectCode).budget;
                 return View(appRepository.GetActivityByCode(projectCode));
             }
             return RedirectToAction("Index", "Home");
@@ -150,7 +142,6 @@ namespace TimeReportingSystem.Controllers{
 
             if(ViewData["User"] != null){
                   
-                
                 if(ModelState.IsValid){
                     appRepository.InsertActivity(a);
                     return RedirectToAction("MyProjects", "Projects");

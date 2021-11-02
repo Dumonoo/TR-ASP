@@ -152,9 +152,13 @@ namespace TimeReportingSystem.Controllers
                 var year = e.date.Substring(0, 4);
                 var month = e.date.Substring(5,2);
                 var id = Int32.Parse(index);
-                if(e.subcode == "null")
+                if(e.subcode == "null" || e.subcode == null)
                 {
-                    e.subcode = null;
+                    e.subcode = "";
+                }
+                if(e.description == "null" || e.description == null)
+                {
+                    e.description = "";
                 }
                 var userName = ViewData["User"].ToString();
 

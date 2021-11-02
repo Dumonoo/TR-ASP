@@ -2,12 +2,84 @@
 @{
     ViewData["Title"] = "Moje Projekty";
 }
+
 <h1>@ViewData["Title"]</h1>
 
 <p>
     <a asp-action="CreateProject">Stwórz nowy projekt</a>
 </p>
+
 <table class="table table-bordered table-striped table-sm">
+    <thead>
+        <th>
+            Nazwa Projektu
+        </th>
+        <th>
+            Kod projektu
+        </th>
+        <th>
+           Stan
+        </th>
+        <th>
+            Godziny <br>(niezatwierdzone/zatwierdzone/zaakceptowane)
+        </th>
+        <th>
+            Aktualny budżet (startowy)
+        </th>
+        <th>
+            Pod aktywności
+        </th>
+        <th>
+            Dostępne akcje
+        </th>
+    </thead>
+    <tbody>
+        @foreach (var entry in Model)
+        {
+            <tr>
+                <td>
+                    @entry.projectName
+                </td>
+                 <td>
+                    @entry.projectCode
+                </td>
+                <td>
+                    @if(entry.active){
+                        <span class="badge badge-pill badge-success">Aktywny</span>
+                    }  
+                    else{
+                        <span class="badge badge-pill badge-dark">Zamknięty</span>
+                    }
+                </td>
+                <td>
+                    ( @entry.notSubmittedHours \ @entry.submittedHours \ @entry.acceptedHours )
+                </td>
+                <td>
+                    @entry.budgetNow (@entry.startbudget)    
+                </td>
+                <td>
+                    <ul>
+                        @foreach (var i in entry.subactivituNames)
+                        {
+                            <li>@i</li>
+                        }
+                    </ul>
+                </td>
+                <td>
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                            <a class="btn btn-primary" asp-action="Manage" asp-controller="Projects" asp-route-projectCode="@entry.projectCode">Zarządzaj</a>
+                        @if(entry.active== true){
+                            <a class="btn btn-success" asp-action="Edit" asp-controller="Projects" asp-route-projectCode="@entry.projectCode">Edytuj</a>
+                            <a class="btn btn-warning" asp-action="NewSubactivity" asp-controller="Projects" asp-route-projectCode="@entry.projectCode">Nowa pod aktywność</a>
+                            <a class="btn btn-dark" asp-action="CloseProject" asp-controller="Projects" asp-route-projectCode="@entry.projectCode">Zamknij projekt</a>
+                        }
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+@* <table class="table table-bordered table-striped table-sm">
     <thead>
         <th>
             Nazwa Projektu
@@ -82,4 +154,4 @@
         }
 
     </tbody>
-</table>
+</table> *@

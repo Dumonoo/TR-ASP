@@ -13,7 +13,6 @@ namespace TimeReportingSystem.Controllers
 {
     public class HomeController : Controller
     {
-        const string SessionAge = "_Age";
 
         private readonly ILogger<HomeController> _logger;
 
