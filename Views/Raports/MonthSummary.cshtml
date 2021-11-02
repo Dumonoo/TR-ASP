@@ -1,0 +1,101 @@
+@model TimeReportingSystem.Models.Raport
+@{
+    ViewData["Title"] = "Moje aktywności";
+    var Months = new[]{"Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"};
+    var selectedMonth = Int32.Parse(ViewData["Month"].ToString());
+    var selectedYear = ViewData["Year"] as string;
+    var selectedYearNumber = Int32.Parse(selectedYear);
+    var summary = ViewData["Summary"] as List<Tuple<string,int, int, bool, bool>>;
+}
+<h1>@ViewData["Title"] za @Months[selectedMonth - 1] - @selectedYear r</h1>
+ 
+
+<form asp-action="MonthSummary" method="get">
+    <div class="row justify-content-end no-gutters">
+        <div class="col-sm-2">
+            <select class="form-control btn-primary" id="month" name="month">
+                @for (int i = 1; i <= Months.Length; i++)
+                {
+                    if(selectedMonth == i){
+                        <option selected value=@i>@Months[i-1]</option>
+                    }
+                    else{
+                        <option value=@i>@Months[i-1]</option>
+                    }
+                }
+            </select>
+        </div>
+        &nbsp;
+        <div class="col-1">
+            <select class="form-control btn-primary " id="year" name="year">
+                @for (int i = DateTime.Now.Year; i > DateTime.Now.Year - 15; i--)
+                {
+                    if(selectedYearNumber == i){
+                        <option selected value=@i>@i</option>
+                    }
+                    else{
+                        <option value=@i>@i</option>
+                    }
+                }
+            </select>
+        </div>
+        &nbsp;
+        <div class="col-1">
+            <input  type="submit" value="Pokaż okres" class="btn btn-primary"/>
+        </div>
+    </div>
+</form>
+
+@if(ViewData["Raport"].ToString() == "true"){
+    <table class="table table-bordered table-sm">
+        <thead>
+            <th>
+                Kod projektu
+            </th>
+            <th>
+                Zgłoszony czas
+            </th>
+            <th>
+                Zaakceptowany czas
+            </th>
+            <th>
+                Status:
+            </th>
+        </thead>
+        <tbody>
+            
+            @foreach (var entry in summary)
+            {
+                <tr>
+                    <td>
+                        @entry.Item1
+                    </td>
+                    <td>
+                        @entry.Item2
+                    </td>
+                    <td>
+                        @entry.Item3
+                    </td>
+                    <td>
+                        @if(entry.Item4){
+                            if(entry.Item5){
+                                <span class="badge badge-pill badge-success">Zaakceptowana</span>
+                            }
+                            else{
+                                <span class="badge badge-pill badge-warning">Zgłoszona</span>
+                            }
+                        }  
+                        else{
+                            <span class="badge badge-pill badge-primary">W trakcie</span>
+                        }
+                    </td>
+                </tr>
+                
+            }      
+
+        </tbody>
+    </table>
+}
+else{
+    <p class="text-center">Wybrany okres rozliczeniowy nie zawiera żadnych wpisów o aktywnościach.</p>
+}

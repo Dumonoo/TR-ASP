@@ -8,7 +8,7 @@ namespace TimeReportingSystem.Models
     public class Activity
     {
         [Required(ErrorMessage = "Proszę podać kod projektu")]
-        [RegularExpression("[a-zA-Z0-9]+", ErrorMessage = "Nazwa projektu może zawierac małe i duże oraz cyfry bez spacji!")]
+        [RegularExpression("[a-zA-Z0-9-_]+", ErrorMessage = "Nazwa projektu może zawierac małe i duże oraz cyfry bez spacji!")]
         [Remote("ProjCodeUniqueness", "Projects")]
         public string code { get; set; }
         [Required]

@@ -1,6 +1,216 @@
-@* @model TimeReportingSystem.Models.Activities *@
+
 @{
-    ViewData["Title"] = "TODO";
+    ViewData["Title"] = "Panel zarządzania projektem - " + ViewData["ProjectCode"];
+    var allRaports = ViewData["Raports"] as Dictionary<string, List<Tuple<string, Raport>>>;
+    var usersData = ViewData["Users"] as Users;
+    var projectCode = ViewData["ProjectCode"] as string;
+    var Months = new[]{"Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"};
 }
 <h1>@ViewData["Title"]</h1>
-<p>@ViewData["test"]</p>
+
+<p>Czas podawany jest w minutach</p>
+<a href="##" onClick="history.go(-1); return false;" class="btn btn-warning">Powrót</a>
+<hr>
+<h2>Aktywności zatwierdzone do akceptacji</h2>
+<table class="table table-bordered table-sm">
+    <thead>
+        <th>
+            Nazwa użytkownika
+        </th>
+        <th>
+            Imię
+        </th>
+        <th>
+            Nazwisko
+        </th>
+        <th>
+            Okres
+        </th>
+        <th>
+            Czas zgłoszony:
+        </th>
+        <th>
+            Czas do akceptacji:
+        </th>
+        <th>
+            Przyciski
+        </th>
+    </thead>
+    <tbody>
+        @foreach (var user in allRaports)
+        {
+            foreach (var raport in user.Value)
+            {
+                if(raport.Item2.frozen == true && !raport.Item2.accepted.Exists(e => e.code == projectCode)){
+                    if (raport.Item2.entries.Exists(e => e.code == projectCode))
+                    {
+                        <tr>
+                            <td>@user.Key</td>
+                            <td>@usersData.users.Find(e => e.userName == user.Key).name</td>
+                            <td>@usersData.users.Find(e => e.userName == user.Key).surname</td>
+                            <td>@raport.Item1</td>
+                            <td>@raport.Item2.entries.Where(e => e.code == projectCode).Select( d => d.time).Sum()</td>
+                            <form asp-action="Accept" id="form">
+                                <td><input type="number" min="0" step="1" id="acceptedTime" name="acceptedTime" 
+                                    value="@raport.Item2.entries.Where(e => e.code == projectCode).Select( d => d.time).Sum()">
+                                </td>
+                                <input type="hidden" id="userName" name="userName" value="@user.Key">
+                                <input type="hidden" id="projectCode" name="projectCode" value="@projectCode">
+                                <input type="hidden" id="period" name="period" value="@raport.Item1">
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <input type="submit" value="Zatwierdź" class="btn btn-primary">
+                                        <a class="btn btn-success" asp-action="Details" 
+                                        asp-route-userName="@user.Key"
+                                        asp-route-projectCode="@projectCode"
+                                        asp-route-period="@raport.Item1"
+                                        >Szczegóły</a>
+                                    </div>
+
+                                </td>
+                            </form>
+                        </tr>
+                        
+                    }
+
+                }
+                
+                
+            }
+        }
+    </tbody>
+</table>
+
+<br>
+
+<h2>Aktywności zaakceptowane</h2>
+<table class="table table-bordered table-sm">
+    <thead>
+        <th>
+            Nazwa użytkownika
+        </th>
+        <th>
+            Imię
+        </th>
+        <th>
+            Nazwisko
+        </th>
+        <th>
+            Okres
+        </th>
+        @* <th>
+            Podaktywności
+        </th> *@
+        <th>
+            Czas zgłoszony:
+        </th>
+        <th>
+            Czas zaakceptowany:
+        </th>
+        <th>
+            Przyciski
+        </th>
+    </thead>
+    <tbody>
+        @foreach (var user in allRaports)
+        {
+            foreach (var raport in user.Value)
+            {
+                if(raport.Item2.frozen == true && raport.Item2.accepted.Exists(e => e.code == projectCode)){
+                    if (raport.Item2.entries.Exists(e => e.code == projectCode))
+                    {
+                        <tr>
+                            <td>@user.Key</td>
+                            <td>@usersData.users.Find(e => e.userName == user.Key).name</td>
+                            <td>@usersData.users.Find(e => e.userName == user.Key).surname</td>
+                            <td>@raport.Item1</td>
+                            <td>@raport.Item2.entries.Where(e => e.code == projectCode).Select( d => d.time).Sum()</td>
+                            @* <td>@raport.Item2.accepted.Find(e => e.code == projectCode).time</td>
+                            <td>button</td> *@
+                            <form asp-action="Change" id="form">
+                                <td><input type="number" min="0" step="1" id="acceptedTime" name="acceptedTime" 
+                                    value="@raport.Item2.accepted.Find(e => e.code == projectCode).time">
+                                </td>
+                                <input type="hidden" id="userName" name="userName" value="@user.Key">
+                                <input type="hidden" id="projectCode" name="projectCode" value="@projectCode">
+                                <input type="hidden" id="period" name="period" value="@raport.Item1">
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <input type="submit" value="Zmień" class="btn btn-primary">
+                                        <a class="btn btn-success" asp-action="Details" 
+                                        asp-route-userName="@user.Key"
+                                        asp-route-projectCode="@projectCode"
+                                        asp-route-period="@raport.Item1"
+                                        >Szczegóły</a>
+                                    </div>
+
+                                </td>
+                            </form>
+                        </tr>
+                    }
+                    
+
+                }
+                
+                
+            }
+        }
+    </tbody>
+</table>
+
+<br>
+
+<h2>Aktywności niezatwierdzone</h2>
+<table class="table table-bordered table-sm">
+    <thead>
+        <th>
+            Nazwa użytkownika
+        </th>
+        <th>
+            Imię
+        </th>
+        <th>
+            Nazwisko
+        </th>
+        <th>
+            Okres
+        </th>
+        <th>
+            Czas zgłoszony:
+        </th>
+        <th>
+            Przyciski
+        </th>
+    </thead>
+    <tbody>
+        @foreach (var user in allRaports)
+        {
+            foreach (var raport in user.Value)
+            {
+                if(raport.Item2.frozen == false){
+                    if (raport.Item2.entries.Exists(e => e.code == projectCode))
+                    {
+                        <tr>
+                            <td>@user.Key</td>
+                            <td>@usersData.users.Find(e => e.userName == user.Key).name</td>
+                            <td>@usersData.users.Find(e => e.userName == user.Key).surname</td>
+                            <td>@raport.Item1</td>
+                            <td>@raport.Item2.entries.Where(e => e.code == projectCode).Select( d => d.time).Sum()</td>
+                            <td>
+                                <a class="btn btn-success text-center" asp-action="Details" 
+                                        asp-route-userName="@user.Key"
+                                        asp-route-projectCode="@projectCode"
+                                        asp-route-period="@raport.Item1"
+                                        >Szczegóły</a>
+                            </td>
+                        </tr>
+                    }
+                    
+
+                }
+                
+                
+            }
+        }
+    </tbody>
+</table>

@@ -1,6 +1,7 @@
 @model TimeReportingSystem.Models.Activities
 @{
     ViewData["Title"] = "Moje Projekty";
+    var ProjectDetails = ViewData["ProjectDetails"] as Dictionary<string, Tuple<int, int, int>>;
 }
 <h1>@ViewData["Title"]</h1>
 
@@ -53,10 +54,13 @@
                         
                     </td>
                     <td>
-                        (TODO)
+                        ( @ProjectDetails[item.code].Item1 \ @ProjectDetails[item.code].Item2 \ @ProjectDetails[item.code].Item3 )
                     </td>
                     <td>
-                        (TODO)
+                        @{
+                            var remainingBudget = item.budget - ProjectDetails[item.code].Item3;
+                        }
+                        @remainingBudget (@item.budget)    
                     </td>
                     <td>
                         <ul>

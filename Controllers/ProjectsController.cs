@@ -7,35 +7,35 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using TimeReportingSystem.Models;
 using System.Text.Json;
-using System;
-using System.Collections.Generic;
-using System.Text.Json;
 using Microsoft.AspNetCore.Http;
-using System.Linq;
 using System.IO;
 
 
 namespace TimeReportingSystem.Controllers{
     public class ProjectsController:Controller{
+        public Repository appRepository;
+        
+        public ProjectsController(){
+            appRepository = new Repository();
+            appRepository.Load();
+            appRepository.LoadRaports();
+        }
         public IActionResult Index(){
             ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
 
-            if(ViewData["User"] != null){
-                string json = System.IO.File.ReadAllText("./wwwroot/json/Activities.json");
-                Activities activityList = JsonSerializer.Deserialize<TimeReportingSystem.Models.Activities>(json);
-                return View(activityList);
+            if(ViewData["User"] != null){                
+                return View(appRepository.GetActivities());
             }
             return RedirectToAction("Index", "Home");
         }
-
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult MyProjects(){
             ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
 
-            if(ViewData["User"] != null){
-                string json = System.IO.File.ReadAllText("./wwwroot/json/Activities.json");
-                Activities activityList = JsonSerializer.Deserialize<TimeReportingSystem.Models.Activities>(json);
-                
-                return View(activityList);
+            if(ViewData["User"] != null){  
+                var userName = ViewData["User"].ToString();       
+                ViewData["ProjectDetails"] = appRepository.GetProjectsInfo(userName);
+                return View(appRepository.GetActivities());
             }
             return RedirectToAction("Index", "Home");
         }
@@ -45,52 +45,44 @@ namespace TimeReportingSystem.Controllers{
             ViewData["ProjectCode"] = projectCode;
             
             if(ViewData["User"] != null){
+                var allRaports = appRepository.GetUserRaports();
+                var allUsers = appRepository.GetUsersData();
                 
-                string path = "./wwwroot/json/UsersData/";
-                var files = Directory.GetFiles(path,"*.json", SearchOption.AllDirectories);
-                foreach (var item in files)
-                {
-                    Console.WriteLine(item);
-                }
+                ViewData["Raports"] = appRepository.GetUserRaports();
+                ViewData["Users"] = appRepository.GetUsersData();
                 return View();
             }
             return RedirectToAction("Index", "Home");
         }
 
-        // public static Directory<string, List<Entry>> Submitted()
-        // {
-
+        // public List<Entry> Submitted2(string projectCode){
+        //     List<Entry> SumittedRaports = new List<Entry>();
+        //     string path = "./wwwroot/json/UsersData/";
+        //     var files = Directory.GetFiles(path,"*.json", SearchOption.AllDirectories);
+        //     foreach (var item in files)
+        //     {
+        //         string json = System.IO.File.ReadAllText(item);
+        //         Raport activityRaport = JsonSerializer.Deserialize<Raport>(json);
+        //         if(activityRaport.frozen == true && !activityRaport.accepted.Any()){
+        //             foreach (var raport in activityRaport.entries)
+        //             {
+        //                 if(raport.code == projectCode){
+        //                     SumittedRaports.Add(raport);
+        //                 }
+        //             }
+        //         }
+        //     }
+        //         ;
+        //     return SumittedRaports;
         // }
-        public List<Entry> Submitted2(string projectCode){
-            List<Entry> SumittedRaports = new List<Entry>();
-            string path = "./wwwroot/json/UsersData/";
-            var files = Directory.GetFiles(path,"*.json", SearchOption.AllDirectories);
-            foreach (var item in files)
-            {
-                string json = System.IO.File.ReadAllText(item);
-                Raport activityRaport = JsonSerializer.Deserialize<Raport>(json);
-                if(activityRaport.frozen == true && !activityRaport.accepted.Any()){
-                    foreach (var raport in activityRaport.entries)
-                    {
-                        if(raport.code == projectCode){
-                            SumittedRaports.Add(raport);
-                        }
-                    }
-                }
-            }
-                ;
-            return SumittedRaports;
-        }
 
         public IActionResult Edit(string projectCode){
             ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
             ViewData["ProjectCode"] = projectCode;
             
             if(ViewData["User"] != null){
-                string json = System.IO.File.ReadAllText("./wwwroot/json/Activities.json");
-                Activities activityList = JsonSerializer.Deserialize<TimeReportingSystem.Models.Activities>(json);
-                TimeReportingSystem.Models.Activity a = activityList.activities.Find(i => i.code == projectCode);
-                return View(a);
+                // ViewData["Budget"] = appRepository.GetActivityByCode(projectCode).budget;
+                return View(appRepository.GetActivityByCode(projectCode));
             }
             return RedirectToAction("Index", "Home");
         }
@@ -100,19 +92,10 @@ namespace TimeReportingSystem.Controllers{
             ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
 
             if(ViewData["User"] != null){
-                  
-                a.active = true;
-                a.subactivities = new List<Subactivity>();
-                a.budget = a.budget * 60;
+                
                 if(ModelState.IsValid){
-                    string json = System.IO.File.ReadAllText("./wwwroot/json/Activities.json");
-                    Activities activityList = JsonSerializer.Deserialize<TimeReportingSystem.Models.Activities>(json);
-                    TimeReportingSystem.Models.Activity oldA = activityList.activities.Find(i => i.code == a.code);
-                    activityList.activities.Remove(oldA);
-                    activityList.activities.Add(a);
-                    string saveJson = JsonSerializer.Serialize<TimeReportingSystem.Models.Activities>(activityList);
-                    System.IO.File.WriteAllText("./wwwroot/json/Activities.json", saveJson);
-                    return View("MyProjects", activityList);
+                    appRepository.UpdateActivity(a);
+                    return RedirectToAction("MyProjects", "Projects");
                 }
                 else{
                     return View();
@@ -134,15 +117,12 @@ namespace TimeReportingSystem.Controllers{
         [HttpPost]
         public IActionResult NewSubactivity(Subactivity s, string projectCode){
             ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
+
             if(ViewData["User"] != null){
                   
                 if(ModelState.IsValid){
-                    string json = System.IO.File.ReadAllText("./wwwroot/json/Activities.json");
-                    Activities activityList = JsonSerializer.Deserialize<TimeReportingSystem.Models.Activities>(json);
-                    activityList.activities.Find(i => i.code == projectCode).subactivities.Add(s);
-                    string saveJson = JsonSerializer.Serialize<TimeReportingSystem.Models.Activities>(activityList);
-                    System.IO.File.WriteAllText("./wwwroot/json/Activities.json", saveJson);
-                    return View("MyProjects", activityList);
+                    appRepository.InsertSubActivity(s, projectCode);
+                    return RedirectToAction("MyProjects", "Projects");
                 }
                 else{
                     return View();
@@ -154,8 +134,14 @@ namespace TimeReportingSystem.Controllers{
             ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
 
             if(ViewData["User"] != null){
-                  
-                return View();
+                var userName = ViewData["User"].ToString();
+                var projectInfo = appRepository.GetProjectInfo(projectCode);
+                if(projectInfo.active && projectInfo.manager == userName)
+                {   
+                    appRepository.CloseProject(projectCode);
+                    return RedirectToAction("MyProjects", "Projects");
+                }
+                
             }
             return RedirectToAction("Index", "Home");
         }
@@ -175,17 +161,10 @@ namespace TimeReportingSystem.Controllers{
 
             if(ViewData["User"] != null){
                   
-                a.active = true;
-                a.subactivities = new List<Subactivity>();
-                a.budget = a.budget * 60;
+                
                 if(ModelState.IsValid){
-                    string json = System.IO.File.ReadAllText("./wwwroot/json/Activities.json");
-                    Activities activityList = JsonSerializer.Deserialize<TimeReportingSystem.Models.Activities>(json);
-                    activityList.activities.Add(a);
-                    string saveJson = JsonSerializer.Serialize<TimeReportingSystem.Models.Activities>(activityList);
-                    System.IO.File.WriteAllText("./wwwroot/json/Activities.json", saveJson);
-                    return View("MyProjects", activityList);
-                    
+                    appRepository.InsertActivity(a);
+                    return RedirectToAction("MyProjects", "Projects");
                 }
                 else{
                     return View();
@@ -194,6 +173,50 @@ namespace TimeReportingSystem.Controllers{
             return RedirectToAction("Index", "Home");
 
             
+        }
+        public IActionResult Details(string userName, string projectCode, string period){
+            ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
+
+            if(ViewData["User"] != null){
+                var year = period.Substring(0,4);
+                var month = period.Substring(5,2);
+                ViewData["SelectedUser"] = userName;
+                ViewData["ProjectCode"] = projectCode;
+                ViewData["Period"] = period;
+                ViewData["Users"] = appRepository.GetUsersData();
+                return View(appRepository.GetUserRaport(userName, year, month));
+            }
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpPost]
+        public IActionResult Accept (string userName, string projectCode, string period, string acceptedTime){
+            ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
+
+            if(ViewData["User"] != null){
+                var year = period.Substring(0,4);
+                var month = period.Substring(5,2);
+                var managerName = ViewData["User"].ToString();
+                if(appRepository.GetProjectInfo(projectCode).manager == managerName){
+                    appRepository.AcceptRaport(year, month, userName, projectCode, Int32.Parse(acceptedTime));
+                    return RedirectToAction("Manage", "Projects", new{projectCode = projectCode});
+                }
+    
+            }
+            return RedirectToAction("Index", "Home");
+        }
+        [HttpPost]
+        public IActionResult Change (string userName, string projectCode, string period, string acceptedTime){
+            ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
+
+            if(ViewData["User"] != null){
+                var year = period.Substring(0,4);
+                var month = period.Substring(5,2);
+                appRepository.ChangeRaport(year, month, userName, projectCode, Int32.Parse(acceptedTime));
+                return RedirectToAction("Manage", "Projects", new{projectCode = projectCode});
+    
+            }
+            return RedirectToAction("Index", "Home");
         }
 
         public JsonResult ProjCodeUniqueness(string code)
@@ -207,9 +230,7 @@ namespace TimeReportingSystem.Controllers{
         public bool ProjectCodeIsInUse(string projectCode)
         {
             bool isNotTaken = true;
-            string json = System.IO.File.ReadAllText("./wwwroot/json/Activities.json");
-            Activities activityList = JsonSerializer.Deserialize<TimeReportingSystem.Models.Activities>(json);
-            activityList.activities.ForEach(delegate(TimeReportingSystem.Models.Activity a){if(a.code == projectCode){isNotTaken = false;}});
+            appRepository.GetActivities().activities.ForEach(delegate(TimeReportingSystem.Models.Activity a){if(a.code == projectCode){isNotTaken = false;}});
 
             return isNotTaken;
         }
@@ -225,9 +246,7 @@ namespace TimeReportingSystem.Controllers{
         public bool SubActivityCodeIsInUse(string code, string projectCode)
         {
             bool isNotTaken = true;
-            string json = System.IO.File.ReadAllText("./wwwroot/json/Activities.json");
-            Activities activityList = JsonSerializer.Deserialize<TimeReportingSystem.Models.Activities>(json);
-            activityList.activities.Find(i => i.code == projectCode).subactivities.ForEach(delegate(Subactivity s){if(s.code == code){isNotTaken = false;}});
+            appRepository.GetActivities().activities.Find(i => i.code == projectCode).subactivities.ForEach(delegate(Subactivity s){if(s.code == code){isNotTaken = false;}});
 
             return isNotTaken;
         }

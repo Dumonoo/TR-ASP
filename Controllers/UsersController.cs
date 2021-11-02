@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using TimeReportingSystem.Models;
-using System.Text.Json;
 // using System;
 // using System.Collections.Generic;
-// using System.Text.Json;
+
 using Microsoft.AspNetCore.Http;
 // using System.Linq;
 
@@ -19,21 +18,16 @@ namespace TimeReportingSystem.Controllers
     public class UsersController : Controller
     {
         public const string SessionUser = "_User";
+        public Users usersData;
+        public Repository appRepository;
         
+        public UsersController(){
+            appRepository = new Repository();
+            appRepository.LoadUsers();
+        }
         public IActionResult Index()
         {
-            
-            try
-            {
-                string json = System.IO.File.ReadAllText("./wwwroot/json/Users.json");
-                Users userList = JsonSerializer.Deserialize<Users>(json);
-                return View(userList);
-            }
-            catch (System.Exception)
-            {
-                
-                throw;
-            }
+            return View(appRepository.GetUsersData());         
         }
         public IActionResult SignUp()
         {
@@ -48,23 +42,18 @@ namespace TimeReportingSystem.Controllers
         public IActionResult SignUp(User u)
         {
             if(ModelState.IsValid){
-                string json = System.IO.File.ReadAllText("./wwwroot/json/Users.json");
-                Users userList = JsonSerializer.Deserialize<Users>(json);
-                userList.users.Add(u);
-                string saveJson = JsonSerializer.Serialize<Users>(userList);
-                System.IO.File.WriteAllText("./wwwroot/json/Users.json", saveJson);
-                return View("Index",userList);
+                appRepository.InsertUser(u);
+                return RedirectToAction("Index", "Users");
             }
             else{
                 return View();
-            }
-            
+            }  
         }
         
         public IActionResult SignIn(string userName){
             HttpContext.Session.SetString(SessionUser, userName);
             ViewData["User"] = HttpContext.Session.GetString(SessionUser);
-            return View();
+            return RedirectToAction("Index", "Raports");
         }
 
         public IActionResult LogOut(){
@@ -76,9 +65,6 @@ namespace TimeReportingSystem.Controllers
         
         public JsonResult VerifyUserName(string userName)
         {
-            string json = System.IO.File.ReadAllText("./wwwroot/json/Users.json");
-            Users userList = JsonSerializer.Deserialize<Users>(json);
-            
             bool newUsername = IsInUse(userName);
             
             if (!newUsername)
@@ -88,11 +74,9 @@ namespace TimeReportingSystem.Controllers
             return Json(true);
         }
         public bool IsInUse(string userName){
-            string json = System.IO.File.ReadAllText("./wwwroot/json/Users.json");
-            Users userList = JsonSerializer.Deserialize<Users>(json);
             
             bool isNotTaken = true;
-            userList.users.ForEach(delegate(User u){if(u.userName == userName){isNotTaken = false;}});
+            appRepository.GetUsersData().users.ForEach(delegate(User u){if(u.userName == userName){isNotTaken = false;}});
             return isNotTaken;
         }
     }
