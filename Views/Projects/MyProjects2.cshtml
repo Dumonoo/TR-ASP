@@ -1,0 +1,89 @@
+@model TimeReportingSystem.Models.Activities
+@{
+    ViewData["Title"] = "Moje Projekty";
+    var ProjectDetails = ViewData["ProjectDetails"] as Dictionary<string, Tuple<int, int, int>>;
+}
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a asp-action="CreateProject">Stwórz nowy projekt</a>
+</p>
+<table class="table table-bordered table-striped table-sm">
+    <thead>
+        <th>
+            Nazwa Projektu
+        </th>
+        <th>
+            Kod projektu
+        </th>
+        <th>
+           Stan
+        </th>
+        <th>
+            Godziny <br>(niezatwierdzone/zatwierdzone/zaakceptowane)
+        </th>
+        <th>
+            Aktualny budżet (startowy)
+        </th>
+        <th>
+            Pod aktywności
+        </th>
+        <th>
+            Dostępne akcje
+        </th>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model.activities.OrderByDescending(f => f.active))
+        {
+            @if(item.manager == ViewData["User"].ToString()){
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.code)
+                    </td>
+                    <td>
+                        @if(item.active){
+                            <span class="badge badge-pill badge-success">Aktywny</span>
+                        }  
+                        else{
+                            <span class="badge badge-pill badge-dark">Zamknięty</span>
+                        }
+                        
+                    </td>
+                    <td>
+                        ( @ProjectDetails[item.code].Item1 \ @ProjectDetails[item.code].Item2 \ @ProjectDetails[item.code].Item3 )
+                    </td>
+                    <td>
+                        @{
+                            var remainingBudget = item.budget - ProjectDetails[item.code].Item3;
+                        }
+                        @remainingBudget (@item.budget)    
+                    </td>
+                    <td>
+                        <ul>
+                            @foreach (var i in item.subactivities)
+                            {
+                                <li>@i.code</li>
+                            }
+                        </ul>
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group" aria-label="Basic example">
+                            @if(item.active == true){
+                                <a class="btn btn-primary" asp-action="Manage" asp-controller="Projects" asp-route-projectCode="@item.code">Zarządzaj</a>
+                                <a class="btn btn-success" asp-action="Edit" asp-controller="Projects" asp-route-projectCode="@item.code">Edytuj</a>
+                                <a class="btn btn-warning" asp-action="NewSubactivity" asp-controller="Projects" asp-route-projectCode="@item.code">Nowa pod aktywność</a>
+                                <a class="btn btn-dark" asp-action="CloseProject" asp-controller="Projects" asp-route-projectCode="@item.code">Zamknij projekt</a>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+            
+        }
+
+    </tbody>
+</table>

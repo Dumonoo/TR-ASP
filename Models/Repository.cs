@@ -81,6 +81,71 @@ namespace TimeReportingSystem.Models
             }
         }
 
+        public List<ProjectUserRaportModelView> GetManageData(string projectCode){
+            var returnList = new List<ProjectUserRaportModelView>();
+            var allRaports = GetUserRaports();
+            var allUsers = GetUsersData();
+            GetProjectInfo(projectCode);
+
+            
+            foreach (var user in allRaports)
+            {
+                foreach (var raport in user.Value)
+                {
+                    if(raport.Item2.entries.Exists(e => e.code == projectCode)){
+                        var forViewData = new ProjectUserRaportModelView();
+                        var userInfo = allUsers.users.Find(e => e.userName == user.Key);
+                        forViewData.projectCode = projectCode;
+                        forViewData.projectActive = GetProjectInfo(projectCode).active;
+                        forViewData.userName = userInfo.userName;
+                        forViewData.name = userInfo.name;
+                        forViewData.surname = userInfo.surname;
+                        forViewData.period = raport.Item1;
+                        forViewData.timeSubmitted = raport.Item2.entries.Where(e => e.code == projectCode).Select( d => d.time).Sum();
+                        forViewData.accepted = raport.Item2.accepted.Exists(e => e.code == projectCode);
+                        if(forViewData.accepted){
+                            forViewData.timeAccepted = raport.Item2.accepted.Find(e => e.code == projectCode).time;
+                        }
+                        else{
+                            forViewData.timeAccepted = 0;
+                        }
+                        forViewData.frozen = raport.Item2.frozen;
+                        returnList.Add(forViewData);
+                    }
+                    
+                }
+            }
+            return returnList;
+        }
+        public List<MyProjectModelView> GetMyProjects(string userName){
+            var myProjects = new List<MyProjectModelView>();
+            foreach (var project in projectsData.activities.OrderByDescending(f => f.active))
+            {
+                if(project.manager == userName){
+                    var myProjectEntry = new MyProjectModelView();
+                    myProjectEntry.projectCode = project.code;
+                    myProjectEntry.projectName = project.name;
+                    myProjectEntry.manager = project.manager;
+                    myProjectEntry.active = project.active;
+                    // retursn tuple of minutes (notsubmited submited accepted)
+                    var HoursTuple = GetHours(project.code);
+                    myProjectEntry.notSubmittedHours = HoursTuple.Item1 / 60;
+                    myProjectEntry.submittedHours = HoursTuple.Item2 / 60;
+                    myProjectEntry.acceptedHours = HoursTuple.Item3 / 60;
+                    myProjectEntry.budgetNow = (project.budget - HoursTuple.Item3) / 60;
+                    myProjectEntry.startbudget  = project.budget / 60;
+                    var subAct = new List<string>();
+                    foreach (var subactivity in project.subactivities)
+                    {
+                        subAct.Add(subactivity.code);
+                    }
+                    myProjectEntry.subactivituNames = subAct;
+                    myProjects.Add(myProjectEntry);
+                }
+            }
+            return myProjects;
+
+        }
         public Raport GetUserRaport(string userName, string year, string month){
             string period = year + "-" + month;
             return raportsData[userName].Find(e => e.Item1 == period).Item2;

@@ -28,14 +28,15 @@ namespace TimeReportingSystem.Controllers{
             }
             return RedirectToAction("Index", "Home");
         }
+        
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult MyProjects(){
             ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
 
             if(ViewData["User"] != null){  
-                var userName = ViewData["User"].ToString();       
-                ViewData["ProjectDetails"] = appRepository.GetProjectsInfo(userName);
-                return View(appRepository.GetActivities());
+                var userName = ViewData["User"].ToString();
+                var myProjectsData = appRepository.GetMyProjects(userName);
+                return View(myProjectsData);
             }
             return RedirectToAction("Index", "Home");
         }
@@ -45,43 +46,17 @@ namespace TimeReportingSystem.Controllers{
             ViewData["ProjectCode"] = projectCode;
             
             if(ViewData["User"] != null){
-                var allRaports = appRepository.GetUserRaports();
-                var allUsers = appRepository.GetUsersData();
-                
-                ViewData["Raports"] = appRepository.GetUserRaports();
-                ViewData["Users"] = appRepository.GetUsersData();
-                return View();
+                var manageData = appRepository.GetManageData(projectCode); 
+                return View(manageData);
             }
             return RedirectToAction("Index", "Home");
         }
-
-        // public List<Entry> Submitted2(string projectCode){
-        //     List<Entry> SumittedRaports = new List<Entry>();
-        //     string path = "./wwwroot/json/UsersData/";
-        //     var files = Directory.GetFiles(path,"*.json", SearchOption.AllDirectories);
-        //     foreach (var item in files)
-        //     {
-        //         string json = System.IO.File.ReadAllText(item);
-        //         Raport activityRaport = JsonSerializer.Deserialize<Raport>(json);
-        //         if(activityRaport.frozen == true && !activityRaport.accepted.Any()){
-        //             foreach (var raport in activityRaport.entries)
-        //             {
-        //                 if(raport.code == projectCode){
-        //                     SumittedRaports.Add(raport);
-        //                 }
-        //             }
-        //         }
-        //     }
-        //         ;
-        //     return SumittedRaports;
-        // }
 
         public IActionResult Edit(string projectCode){
             ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
             ViewData["ProjectCode"] = projectCode;
             
             if(ViewData["User"] != null){
-                // ViewData["Budget"] = appRepository.GetActivityByCode(projectCode).budget;
                 return View(appRepository.GetActivityByCode(projectCode));
             }
             return RedirectToAction("Index", "Home");
@@ -119,13 +94,18 @@ namespace TimeReportingSystem.Controllers{
             ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
 
             if(ViewData["User"] != null){
-                  
-                if(ModelState.IsValid){
-                    appRepository.InsertSubActivity(s, projectCode);
-                    return RedirectToAction("MyProjects", "Projects");
-                }
-                else{
-                    return View();
+
+                var userName = ViewData["User"].ToString();
+                var projectInfo = appRepository.GetProjectInfo(projectCode);
+                if(projectInfo.manager == userName)
+                {
+                    if(ModelState.IsValid){
+                        appRepository.InsertSubActivity(s, projectCode);
+                        return RedirectToAction("MyProjects", "Projects");
+                    }
+                    else{
+                        return View();
+                    }
                 }
             }
             return RedirectToAction("Index", "Home");
@@ -155,13 +135,13 @@ namespace TimeReportingSystem.Controllers{
             }
             return RedirectToAction("Index", "Home");
         }
+        
         [HttpPost]
         public IActionResult CreateProject(TimeReportingSystem.Models.Activity a){
             ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
 
             if(ViewData["User"] != null){
                   
-                
                 if(ModelState.IsValid){
                     appRepository.InsertActivity(a);
                     return RedirectToAction("MyProjects", "Projects");

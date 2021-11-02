@@ -4,6 +4,16 @@
 
 <div class="text-center">
     <h1 class="display-4">Witamy w systemie raportowania czasu</h1>
-    <p>W celu zaraportowania aktywności proszę się  zalogować</p>
+    @if (ViewData["User"] != null)
+    {
+        <p>W celu zaraportowania aktywności proszę wybrać zakładkę moje aktywności</p>
+        <p>W celu dodanie nowego projektu dla którego można będzie zgłaszać aktywności proszę wybrać zakładkę moje projekty</p>
+        <p>W celu sprzwdzenia jakie aktualnie projekty są w trakcie przejdź do zakładki otwarte projekty</p>
+        <p>W zakładce Miesięczne zestawienie znajdziesz informacje o aktywnościach wykonanych na poczet danego projektu w danym miesiącu</p>
+    }
+    else
+    {
+        <p>W celu zaraportowania aktywności proszę się  zalogować</p>
+    }
     <p>Informacje o tworcy w zakladce <a style="color: coral;" asp-area="" asp-controller="Home" asp-action="Help">O projekcie</a></p>
 </div>

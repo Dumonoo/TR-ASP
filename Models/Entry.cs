@@ -14,6 +14,7 @@ namespace TimeReportingSystem.Models
         [Required]
         [RegularExpression("[1-9]{1}[0-9]+", ErrorMessage ="Proszę podać prawidłową liczbę!")]
         public int time { get; set; }
+        [StringLength(2000)]
         public string description { get; set; }
     }
 }

@@ -39,7 +39,7 @@ namespace TimeReportingSystem.Controllers
                 ViewData["IsSubmitted"] = false;
 
                 if(Int32.Parse(month) <= 9){
-                    month = "0" + month;
+                    month = "0" + Int32.Parse(month).ToString();
                 }
                 if(appRepository.UserRaportExists(userName, year, month)){
                     ViewData["Raport"] = "true";
@@ -77,9 +77,13 @@ namespace TimeReportingSystem.Controllers
 
             if(ViewData["User"] != null)
             {
-                if(e.subcode == "null")
+                if(e.subcode == "null" || e.subcode == null)
                 {
-                    e.subcode = null;
+                    e.subcode = "";
+                }
+                if(e.description == "null" || e.description == null)
+                {
+                    e.description = "";
                 }
                 
                 var userName = ViewData["User"].ToString();
@@ -148,9 +152,13 @@ namespace TimeReportingSystem.Controllers
                 var year = e.date.Substring(0, 4);
                 var month = e.date.Substring(5,2);
                 var id = Int32.Parse(index);
-                if(e.subcode == "null")
+                if(e.subcode == "null" || e.subcode == null)
                 {
-                    e.subcode = null;
+                    e.subcode = "";
+                }
+                if(e.description == "null" || e.description == null)
+                {
+                    e.description = "";
                 }
                 var userName = ViewData["User"].ToString();
 

@@ -6,11 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using TimeReportingSystem.Models;
-// using System;
-// using System.Collections.Generic;
-
 using Microsoft.AspNetCore.Http;
-// using System.Linq;
+
 
 
 namespace TimeReportingSystem.Controllers
@@ -30,10 +27,6 @@ namespace TimeReportingSystem.Controllers
             return View(appRepository.GetUsersData());         
         }
         public IActionResult SignUp()
-        {
-            return View();
-        }
-        public IActionResult Test()
         {
             return View();
         }

@@ -2,8 +2,8 @@
 
 @{
     ViewData["Title"] = "Nowy projekt";
-
 }
+
 <h1>@ViewData["Title"]</h1>
 
 <div class="col col-4 justify-content-lg-start">
@@ -34,14 +34,4 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    @* <script>
-        $("#form").on("submit", function (e) {
-            e.preventDefault();
-            var self = $(this);
-            var minutes = parseFloat($("#changeToMinutes").val()) * 60;
-            $("#changeToMinutes").val(minutes.toString());
-            $("#form").off("submit");
-            self.submit();
-        });
-    </script> *@
 }
