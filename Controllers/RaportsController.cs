@@ -22,7 +22,7 @@ namespace TimeReportingSystem.Controllers
             appRepository.Load();
             appRepository.LoadRaports();
         }
-        public IActionResult Index(string year, string month){
+        public IActionResult Index(string year, string month, string day){
             ViewData["User"] = HttpContext.Session.GetString(Controllers.UsersController.SessionUser);
 
             if(ViewData["User"] != null)
@@ -32,6 +32,10 @@ namespace TimeReportingSystem.Controllers
                 if(year == null || month == null){
                     year = DateTime.Now.Year.ToString();
                     month = DateTime.Now.Month.ToString();
+                }
+                if(day != null)
+                {
+                    ViewData["Day"] = day;
                 }
                 var userName = ViewData["User"].ToString();
                 ViewData["Year"] = year;
@@ -45,6 +49,23 @@ namespace TimeReportingSystem.Controllers
                     ViewData["Raport"] = "true";
                     var userRaports = appRepository.GetUserRaport(userName, year, month);
                     ViewData["IsSubmitted"] = userRaports.frozen;
+                    double minutesSum = 0;
+                    if(day != null){
+                        var dailyRaport = new Raport();
+                        dailyRaport.frozen = userRaports.frozen;
+                        dailyRaport.accepted = new List<Accepted>();
+                        dailyRaport.entries = new List<Entry>();
+                        for (int index = 0; index < userRaports.entries.Count; index++){
+                            if(Int32.Parse(userRaports.entries[index].date.Substring(8,2)) == Int32.Parse(day))
+                            {
+                                minutesSum += userRaports.entries[index].time;
+                                dailyRaport.entries.Add(userRaports.entries[index]);
+                            }
+                        }
+                        ViewData["Hours"] = minutesSum / 60;
+                        userRaports = dailyRaport;
+                    }
+                    
                     return View(userRaports);
                 }
                 else{
